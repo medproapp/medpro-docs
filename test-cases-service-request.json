@@ -1,0 +1,417 @@
+{
+  "test_suite": "Service Request (Exame/Procedimento)",
+  "description": "Test cases para funcionalidade de solicitação de exames e procedimentos médicos",
+  "test_cases": [
+    {
+      "id": "SR_001",
+      "title": "Abrir modal de Service Request",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Usuário logado no sistema",
+        "Encontro médico ativo"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Solicitar' na seção de exames",
+          "expected": "Modal 'Exame/Procedimento' abre com header padronizado"
+        },
+        {
+          "step": 2,
+          "action": "Verificar estrutura do header",
+          "expected": "Header contém: título 'Exame/Procedimento', badge 'Nova Solicitação', botões 'Redefinir' e 'X'"
+        },
+        {
+          "step": 3,
+          "action": "Verificar estrutura do footer",
+          "expected": "Footer contém botões: 'Modelo', 'Salvar', 'Gerar PDF', 'Concluir'"
+        }
+      ]
+    },
+    {
+      "id": "SR_002", 
+      "title": "Selecionar categoria de solicitação",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Modal de Service Request aberto",
+        "Dropdown 'Categoria da Solicitação' visível"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no dropdown 'Categoria da Solicitação'",
+          "expected": "Lista de categorias é exibida"
+        },
+        {
+          "step": 2,
+          "action": "Selecionar uma categoria válida (ex: 'imaging')",
+          "expected": "Categoria é selecionada e dropdown 'Usar Modelo' é habilitado"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se o accordion 'Passo 1: Selecionar Procedimentos/Exames' fica habilitado",
+          "expected": "Accordion é expandido automaticamente com opções de busca"
+        }
+      ]
+    },
+    {
+      "id": "SR_003",
+      "title": "Buscar e adicionar item à solicitação",
+      "priority": "High", 
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Categoria selecionada",
+        "Accordion 'Passo 1' expandido"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Digitar termo de busca no campo 'Buscar Items'",
+          "expected": "Lista de items filtrada conforme digitação"
+        },
+        {
+          "step": 2,
+          "action": "Clicar no botão '+' de um item da lista",
+          "expected": "Item é adicionado à lista 'Items da Prescrição'"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se item aparece na seção direita",
+          "expected": "Item listado com opção de remoção (botão 'x')"
+        }
+      ]
+    },
+    {
+      "id": "SR_004",
+      "title": "Remover item da solicitação", 
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Pelo menos um item adicionado à solicitação"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'x' de um item na lista",
+          "expected": "Item é removido da lista de solicitações"
+        },
+        {
+          "step": 2,
+          "action": "Verificar se contador de items é atualizado",
+          "expected": "Número de items reflete a remoção"
+        }
+      ]
+    },
+    {
+      "id": "SR_005",
+      "title": "Salvar rascunho de solicitação",
+      "priority": "High",
+      "type": "Functional", 
+      "automated": false,
+      "preconditions": [
+        "Categoria selecionada",
+        "Pelo menos um item adicionado"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Salvar'",
+          "expected": "Dados são salvos e mensagem de sucesso é exibida"
+        },
+        {
+          "step": 2,
+          "action": "Verificar se badge do header muda para ID gerado",
+          "expected": "Badge mostra ID da solicitação (ex: 'SOL-12345')"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se status muda para 'salvo'",
+          "expected": "Indicador de status atualizado na área de mensagens"
+        }
+      ]
+    },
+    {
+      "id": "SR_006",
+      "title": "Gerar PDF da solicitação",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Solicitação salva",
+        "Pelo menos um item na solicitação"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Gerar PDF'",
+          "expected": "PDF é gerado e exibido no accordion 'Passo 2'"
+        },
+        {
+          "step": 2,
+          "action": "Verificar se accordion 'Passo 2: Revisar e Assinar' expande",
+          "expected": "Prévia do PDF visível na área de visualização"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se painel de assinatura digital aparece",
+          "expected": "Opções de assinatura digital são exibidas"
+        }
+      ]
+    },
+    {
+      "id": "SR_007",
+      "title": "Assinar documento digitalmente",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "PDF gerado",
+        "Painel de assinatura digital visível",
+        "Certificado digital configurado"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar em 'Assinar com Certificado Digital'",
+          "expected": "Processo de assinatura é iniciado"
+        },
+        {
+          "step": 2,
+          "action": "Confirmar assinatura com certificado",
+          "expected": "Documento é assinado com sucesso"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se link do documento assinado aparece",
+          "expected": "Link 'Solicitação Assinada' disponível na seção 'Documentos Gerados'"
+        }
+      ]
+    },
+    {
+      "id": "SR_008",
+      "title": "Concluir solicitação",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "PDF gerado",
+        "Documento pode estar assinado ou não"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Concluir'",
+          "expected": "Status da solicitação muda para 'completed'"
+        },
+        {
+          "step": 2,
+          "action": "Verificar se solicitação aparece no histórico",
+          "expected": "Solicitação listada na aba 'Registros Clínicos'"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se modal fecha automaticamente",
+          "expected": "Modal é fechado após conclusão"
+        }
+      ]
+    },
+    {
+      "id": "SR_009",
+      "title": "Salvar como modelo",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Categoria selecionada",
+        "Pelo menos um item adicionado"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Modelo'",
+          "expected": "Modal de salvar modelo abre"
+        },
+        {
+          "step": 2,
+          "action": "Digitar nome do modelo",
+          "expected": "Campo aceita entrada de texto"
+        },
+        {
+          "step": 3,
+          "action": "Clicar em 'Salvar'",
+          "expected": "Modelo é salvo e aparece na lista de modelos existentes"
+        }
+      ]
+    },
+    {
+      "id": "SR_010",
+      "title": "Usar modelo salvo",
+      "priority": "Medium", 
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Modelo previamente salvo",
+        "Modal de Service Request aberto"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Selecionar categoria correspondente ao modelo",
+          "expected": "Dropdown 'Usar Modelo' é habilitado"
+        },
+        {
+          "step": 2,
+          "action": "Selecionar modelo no dropdown 'Usar Modelo'",
+          "expected": "Formulário é preenchido com dados do modelo"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se items do modelo são carregados",
+          "expected": "Items aparecem automaticamente na lista de solicitação"
+        }
+      ]
+    },
+    {
+      "id": "SR_011",
+      "title": "Redefinir formulário",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Formulário parcialmente preenchido"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Redefinir'",
+          "expected": "Confirmação de redefinição é solicitada"
+        },
+        {
+          "step": 2,
+          "action": "Confirmar redefinição",
+          "expected": "Formulário volta ao estado inicial"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se todos os campos são limpos",
+          "expected": "Dropdowns voltam ao valor padrão e lista de items é esvaziada"
+        }
+      ]
+    },
+    {
+      "id": "SR_012",
+      "title": "Validação de campos obrigatórios",
+      "priority": "High",
+      "type": "Validation",
+      "automated": false,
+      "preconditions": [
+        "Modal de Service Request aberto"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tentar salvar sem selecionar categoria",
+          "expected": "Botão 'Salvar' permanece desabilitado"
+        },
+        {
+          "step": 2,
+          "action": "Tentar gerar PDF sem items adicionados",
+          "expected": "Botão 'Gerar PDF' permanece desabilitado"
+        },
+        {
+          "step": 3,
+          "action": "Verificar mensagens de validação",
+          "expected": "Mensagens orientam sobre campos obrigatórios"
+        }
+      ]
+    },
+    {
+      "id": "SR_013",
+      "title": "Teste de responsividade do modal",
+      "priority": "Low",
+      "type": "UI",
+      "automated": false,
+      "preconditions": [
+        "Modal de Service Request aberto"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Redimensionar janela do navegador",
+          "expected": "Modal se adapta mantendo usabilidade"
+        },
+        {
+          "step": 2,
+          "action": "Testar em dispositivos móveis",
+          "expected": "Layout responsivo funciona corretamente"
+        },
+        {
+          "step": 3,
+          "action": "Verificar accordion em telas pequenas",
+          "expected": "Accordions funcionam adequadamente"
+        }
+      ]
+    },
+    {
+      "id": "SR_014",
+      "title": "Fechar modal com alterações não salvas",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Formulário com alterações não salvas"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'X' para fechar",
+          "expected": "Confirmação sobre alterações não salvas é exibida"
+        },
+        {
+          "step": 2,
+          "action": "Cancelar fechamento",
+          "expected": "Modal permanece aberto com dados preservados"
+        },
+        {
+          "step": 3,
+          "action": "Confirmar fechamento",
+          "expected": "Modal fecha e alterações são perdidas"
+        }
+      ]
+    },
+    {
+      "id": "SR_015",
+      "title": "Busca avançada de items",
+      "priority": "Medium",
+      "type": "Functional", 
+      "automated": false,
+      "preconditions": [
+        "Categoria selecionada",
+        "Campo de busca visível"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Digitar termo parcial no campo de busca",
+          "expected": "Resultados filtrados em tempo real"
+        },
+        {
+          "step": 2,
+          "action": "Testar busca com caracteres especiais",
+          "expected": "Busca funciona com acentos e símbolos"
+        },
+        {
+          "step": 3,
+          "action": "Limpar campo de busca",
+          "expected": "Lista completa de items é restaurada"
+        }
+      ]
+    }
+  ]
+}

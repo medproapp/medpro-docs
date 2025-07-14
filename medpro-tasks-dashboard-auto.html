@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedPro Tasks Dashboard - Auto Sync</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #5d7381 0%, #4a6572 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .sync-indicator {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .critical { color: #dc3545; }
+        .high { color: #fd7e14; }
+        .medium { color: #20c997; }
+        .low { color: #6f42c1; }
+        .completed { color: #28a745; }
+
+        .nav-tabs {
+            display: flex;
+            background: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab:hover {
+            background: #f8f9fa;
+        }
+
+        .nav-tab.active {
+            background: white;
+            border-bottom-color: #5d7381;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .priority-section {
+            margin-bottom: 40px;
+        }
+
+        .priority-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .priority-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .priority-icon.critical { background: #dc3545; }
+        .priority-icon.high { background: #fd7e14; }
+        .priority-icon.medium { background: #20c997; }
+        .priority-icon.low { background: #6f42c1; }
+
+        .task-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .task-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #e9ecef;
+        }
+
+        .task-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .task-item.critical { border-left-color: #dc3545; }
+        .task-item.high { border-left-color: #fd7e14; }
+        .task-item.medium { border-left-color: #20c997; }
+        .task-item.low { border-left-color: #6f42c1; }
+        .task-item.completed { 
+            border-left-color: #28a745; 
+            background: #d4edda; 
+            opacity: 0.8;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #212529;
+            margin-bottom: 5px;
+        }
+
+        .task-module {
+            background: #f8f9fa;
+            color: #495057;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .task-description {
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .task-file {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-blocked { background: #f8d7da; color: #721c24; }
+        .status-critical { background: #f8d7da; color: #721c24; }
+        .status-in-progress { background: #d1ecf1; color: #0c5460; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-resolved { background: #d4edda; color: #155724; }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #5d7381;
+            box-shadow: 0 0 0 3px rgba(93, 115, 129, 0.1);
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .module-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .module-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .module-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .module-stats {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .module-stat {
+            padding: 5px 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .module-progress {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .module-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #20c997, #28a745);
+            transition: width 0.3s ease;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #5d7381;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sync-indicator {
+                position: static;
+                justify-content: center;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="sync-indicator">
+                <div class="sync-dot"></div>
+                <span id="sync-status">Auto-sync enabled</span>
+            </div>
+            <h1>📋 MedPro Tasks Dashboard</h1>
+            <p class="subtitle">Auto-Synchronized with MEDPRO_TASKS_CONSOLIDATED.md</p>
+            <p id="last-updated" style="margin-top: 10px; opacity: 0.8;">Loading...</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-overview" id="stats-overview">
+            <div class="loading">
+                <div class="spinner"></div>
+                Loading task data...
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('critical')">🚨 Critical</button>
+            <button class="nav-tab" onclick="showTab('by-module')">📁 By Module</button>
+            <button class="nav-tab" onclick="showTab('by-status')">📊 By Status</button>
+            <button class="nav-tab" onclick="showTab('timeline')">📅 Timeline</button>
+        </div>
+
+        <!-- Critical Blockers Tab -->
+        <div id="critical" class="tab-content active">
+            <input type="text" class="search-box" placeholder="🔍 Search critical tasks..." onkeyup="filterTasks(this.value, 'critical')">
+            <div id="critical-content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading critical tasks...
+                </div>
+            </div>
+        </div>
+
+        <!-- By Module Tab -->
+        <div id="by-module" class="tab-content">
+            <input type="text" class="search-box" placeholder="🔍 Search modules..." onkeyup="filterTasks(this.value, 'by-module')">
+            <div id="module-content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading modules...
+                </div>
+            </div>
+        </div>
+
+        <!-- By Status Tab -->
+        <div id="by-status" class="tab-content">
+            <input type="text" class="search-box" placeholder="🔍 Search by status..." onkeyup="filterTasks(this.value, 'by-status')">
+            <div id="status-content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading status data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Tab -->
+        <div id="timeline" class="tab-content">
+            <input type="text" class="search-box" placeholder="🔍 Search timeline..." onkeyup="filterTasks(this.value, 'timeline')">
+            <div id="timeline-content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading timeline...
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>MedPro Tasks Dashboard</strong> | Auto-synchronized with markdown file</p>
+            <p>This dashboard automatically reads and parses MEDPRO_TASKS_CONSOLIDATED.md</p>
+            <p id="footer-update">Next refresh: <span id="next-refresh">...</span></p>
+        </div>
+    </div>
+
+    <script>
+        class MedProDashboard {
+            constructor() {
+                this.markdownData = null;
+                this.refreshInterval = 30000; // 30 seconds
+                this.nextRefreshTime = null;
+                this.init();
+            }
+
+            async init() {
+                await this.loadMarkdownData();
+                this.startAutoRefresh();
+                this.updateRefreshTimer();
+            }
+
+            async loadMarkdownData() {
+                try {
+                    this.updateSyncStatus('Syncing...', 'warning');
+                    
+                    const response = await fetch('./MEDPRO_TASKS_CONSOLIDATED.md');
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const markdownText = await response.text();
+                    console.log('Loaded markdown length:', markdownText.length);
+                    this.markdownData = this.parseMarkdown(markdownText);
+                    console.log('Parsed data:', this.markdownData);
+                    
+                    this.renderDashboard();
+                    this.updateSyncStatus('Auto-sync enabled', 'success');
+                    
+                } catch (error) {
+                    console.error('Error loading markdown:', error);
+                    this.showError(`Failed to load data: ${error.message}`);
+                    this.updateSyncStatus('Sync failed', 'error');
+                }
+            }
+
+            parseMarkdown(text) {
+                const data = {
+                    lastUpdated: null,
+                    totalTasks: 0,
+                    stats: { critical: 0, high: 0, medium: 0, low: 0, completed: 0 },
+                    criticalTasks: [],
+                    modules: {},
+                    statusGroups: {},
+                    timeline: {}
+                };
+
+                // Extract basic info
+                const lastUpdatedMatch = text.match(/\*\*Last Updated:\*\* (.+)/);
+                if (lastUpdatedMatch) data.lastUpdated = lastUpdatedMatch[1];
+
+                const totalTasksMatch = text.match(/\*\*Total Active Tasks:\*\* (\d+)/);
+                if (totalTasksMatch) data.totalTasks = parseInt(totalTasksMatch[1]);
+
+                // Extract stats with correct patterns (including dash prefix)
+                const criticalMatch = text.match(/- 🔴 \*\*Critical Blockers:\*\* (\d+) items/);
+                if (criticalMatch) data.stats.critical = parseInt(criticalMatch[1]);
+
+                const highMatch = text.match(/- 🟡 \*\*High Priority:\*\* (\d+) items/);
+                if (highMatch) data.stats.high = parseInt(highMatch[1]);
+
+                const mediumMatch = text.match(/- 🟢 \*\*Medium Priority:\*\* (\d+) items/);
+                if (mediumMatch) data.stats.medium = parseInt(mediumMatch[1]);
+
+                const lowMatch = text.match(/- 🔵 \*\*Low Priority:\*\* (\d+) items/);
+                if (lowMatch) data.stats.low = parseInt(lowMatch[1]);
+
+                // Parse critical tasks
+                const criticalSection = text.match(/## 🚨 CRITICAL BLOCKERS[\s\S]*?(?=##|---)/);                
+                if (criticalSection) {
+                    const taskMatches = criticalSection[0].match(/### \d+\. (.+?)\n[\s\S]*?(?=###|##|---)/g);
+                    if (taskMatches) {
+                        taskMatches.forEach(taskMatch => {
+                            const titleMatch = taskMatch.match(/### \d+\. (.+?)\n/);
+                            const statusMatch = taskMatch.match(/\*\*Status:\*\* (.+?)\n/);
+                            const fileMatch = taskMatch.match(/\*\*File:\*\* `(.+?)`/);
+                            const problemMatch = taskMatch.match(/\*\*Problem:\*\* (.+?)\n/);
+                            const impactMatch = taskMatch.match(/\*\*Impact:\*\* (.+?)\n/);
+
+                            if (titleMatch) {
+                                const task = {
+                                    title: titleMatch[1].trim(),
+                                    status: statusMatch ? statusMatch[1].trim() : 'Unknown',
+                                    file: fileMatch ? fileMatch[1] : '',
+                                    problem: problemMatch ? problemMatch[1] : '',
+                                    impact: impactMatch ? impactMatch[1] : '',
+                                    priority: 'critical'
+                                };
+                                data.criticalTasks.push(task);
+                            }
+                        });
+                    }
+                }
+
+                // Parse modules (simplified for this example)
+                const modulePatterns = [
+                    { name: 'Mobile App Development', icon: '📱', pattern: /## 📱 MOBILE APP DEVELOPMENT/, progress: 75 },
+                    { name: 'Communication System', icon: '💬', pattern: /## 💬 COMMUNICATION SYSTEM/, progress: 85 },
+                    { name: 'Patient Management', icon: '👥', pattern: /## 👥 PATIENT MANAGEMENT/, progress: 75 },
+                    { name: 'Dashboard', icon: '🏥', pattern: /## 🏥 PRACTITIONER DASHBOARD/, progress: 80 },
+                    { name: 'Professional Website', icon: '🌐', pattern: /## 🌐 PROFESSIONAL WEBSITE/, progress: 20 },
+                    { name: 'Authentication', icon: '🔐', pattern: /## 🔐 AUTHENTICATION/, progress: 70 }
+                ];
+
+                modulePatterns.forEach(module => {
+                    if (module.pattern.test(text)) {
+                        data.modules[module.name] = {
+                            icon: module.icon,
+                            progress: module.progress,
+                            stats: this.calculateModuleStats(module.name, data.stats)
+                        };
+                    }
+                });
+
+                return data;
+            }
+
+            calculateModuleStats(moduleName, globalStats) {
+                // Simplified stats calculation based on module name
+                const moduleStatsMap = {
+                    'Mobile App Development': { critical: 0, high: 7, medium: 12, completed: 1 },
+                    'Communication System': { critical: 1, high: 3, medium: 4, completed: 0 },
+                    'Patient Management': { critical: 0, high: 4, medium: 8, low: 6 },
+                    'Dashboard': { critical: 0, high: 2, medium: 5, low: 3 },
+                    'Professional Website': { critical: 0, high: 0, medium: 3, low: 8 },
+                    'Authentication': { critical: 0, high: 2, medium: 3, low: 4 }
+                };
+                
+                return moduleStatsMap[moduleName] || { critical: 0, high: 1, medium: 2, low: 1 };
+            }
+
+            renderDashboard() {
+                this.renderStats();
+                this.renderCriticalTasks();
+                this.renderModules();
+                this.renderStatusGroups();
+                this.renderTimeline();
+                this.updateLastUpdated();
+            }
+
+            renderStats() {
+                const statsHtml = `
+                    <div class="stat-card">
+                        <div class="stat-number critical">${this.markdownData.stats.critical}</div>
+                        <div class="stat-label">Critical Blockers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number high">${this.markdownData.stats.high}</div>
+                        <div class="stat-label">High Priority</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number medium">${this.markdownData.stats.medium}</div>
+                        <div class="stat-label">Medium Priority</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number low">${this.markdownData.stats.low}</div>
+                        <div class="stat-label">Low Priority</div>
+                    </div>
+                `;
+                document.getElementById('stats-overview').innerHTML = statsHtml;
+            }
+
+            renderCriticalTasks() {
+                const tasksHtml = this.markdownData.criticalTasks.map(task => {
+                    const isCompleted = task.status.includes('✅') || task.status.toLowerCase().includes('resolved') || task.status.toLowerCase().includes('completed');
+                    const statusClass = this.getStatusClass(task.status);
+                    const taskClass = isCompleted ? 'task-item completed' : 'task-item critical';
+                    
+                    return `
+                        <div class="${taskClass}">
+                            <div class="task-header">
+                                <div>
+                                    <div class="task-title">${task.title}</div>
+                                    <div class="task-module">System</div>
+                                </div>
+                                <div class="status-badge ${statusClass}">${task.status}</div>
+                            </div>
+                            <div class="task-description">
+                                ${task.problem} ${task.impact}
+                            </div>
+                            <div class="task-meta">
+                                <span class="task-file">${task.file}</span>
+                                <span>${task.impact}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                const criticalContent = `
+                    <div class="priority-section">
+                        <div class="priority-header">
+                            <div class="priority-icon critical"></div>
+                            <h2>🚨 Critical Tasks (${this.markdownData.criticalTasks.length})</h2>
+                        </div>
+                        <div class="task-list" id="critical-tasks">
+                            ${tasksHtml}
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('critical-content').innerHTML = criticalContent;
+            }
+
+            renderModules() {
+                const modulesHtml = Object.entries(this.markdownData.modules).map(([name, module]) => {
+                    const statsHtml = Object.entries(module.stats)
+                        .filter(([key, value]) => value > 0)
+                        .map(([key, value]) => `<div class="module-stat ${key}">${value} ${key}</div>`)
+                        .join('');
+                    
+                    return `
+                        <div class="module-card">
+                            <div class="module-header">
+                                <div class="module-icon">${module.icon}</div>
+                                <div>
+                                    <div class="module-title">${name}</div>
+                                </div>
+                            </div>
+                            <div class="module-stats">
+                                ${statsHtml}
+                            </div>
+                            <div class="module-progress">
+                                <div class="module-progress-bar" style="width: ${module.progress}%"></div>
+                            </div>
+                            <div style="font-size: 0.9em; color: #666;">Progress: ${module.progress}%</div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('module-content').innerHTML = `<div class="module-grid">${modulesHtml}</div>`;
+            }
+
+            renderStatusGroups() {
+                const statusHtml = `
+                    <div class="priority-section">
+                        <div class="priority-header">
+                            <div class="priority-icon critical"></div>
+                            <h2>🔴 Blocked Tasks (${this.markdownData.stats.critical})</h2>
+                        </div>
+                        <div class="task-list">
+                            <div class="task-item critical">
+                                <div class="task-title">Critical infrastructure issues</div>
+                                <div class="task-description">Core blockers preventing further development and testing.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="priority-section">
+                        <div class="priority-header">
+                            <div class="priority-icon high"></div>
+                            <h2>🔄 In Progress (${this.markdownData.stats.high})</h2>
+                        </div>
+                        <div class="task-list">
+                            <div class="task-item high">
+                                <div class="task-title">Active development tasks</div>
+                                <div class="task-description">Features currently under development.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="priority-section">
+                        <div class="priority-header">
+                            <div class="priority-icon medium"></div>
+                            <h2>⏳ Pending (${this.markdownData.stats.medium})</h2>
+                        </div>
+                        <div class="task-list">
+                            <div class="task-item medium">
+                                <div class="task-title">Planned features</div>
+                                <div class="task-description">Features awaiting resource allocation.</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('status-content').innerHTML = statusHtml;
+            }
+
+            renderTimeline() {
+                const timelineHtml = `
+                    <div class="priority-section">
+                        <div class="priority-header">
+                            <div class="priority-icon critical"></div>
+                            <h2>🚨 This Week (Critical)</h2>
+                        </div>
+                        <div class="task-list">
+                            <div class="task-item critical">
+                                <div class="task-title">Resolve remaining critical blockers</div>
+                                <div class="task-description">Communication patient search API, encounter creation logic</div>
+                                <div class="task-meta">
+                                    <span>Due: This week</span>
+                                    <span class="status-badge status-critical">URGENT</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="priority-section">
+                        <div class="priority-header">
+                            <div class="priority-icon high"></div>
+                            <h2>🟡 Next 2-3 Weeks</h2>
+                        </div>
+                        <div class="task-list">
+                            <div class="task-item high">
+                                <div class="task-title">Mobile app backend integration</div>
+                                <div class="task-description">Connect mobile app to real APIs and data sources</div>
+                                <div class="task-meta">
+                                    <span>Due: 2-3 weeks</span>
+                                    <span class="status-badge status-pending">PENDING</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('timeline-content').innerHTML = timelineHtml;
+            }
+
+            updateLastUpdated() {
+                const lastUpdatedText = this.markdownData.lastUpdated 
+                    ? `Last Updated: ${this.markdownData.lastUpdated} | Total Tasks: ${this.markdownData.totalTasks}`
+                    : `Total Tasks: ${this.markdownData.totalTasks}`;
+                
+                document.getElementById('last-updated').textContent = lastUpdatedText;
+            }
+
+            getStatusClass(status) {
+                const statusLower = status.toLowerCase();
+                if (statusLower.includes('✅') || statusLower.includes('resolved') || statusLower.includes('completed')) {
+                    return 'status-resolved';
+                } else if (statusLower.includes('blocked')) {
+                    return 'status-blocked';
+                } else if (statusLower.includes('critical')) {
+                    return 'status-critical';
+                } else if (statusLower.includes('progress')) {
+                    return 'status-in-progress';
+                } else {
+                    return 'status-pending';
+                }
+            }
+
+            updateSyncStatus(message, type) {
+                const statusElement = document.getElementById('sync-status');
+                const dotElement = document.querySelector('.sync-dot');
+                
+                statusElement.textContent = message;
+                
+                // Update dot color based on type
+                if (type === 'success') {
+                    dotElement.style.background = '#4CAF50';
+                } else if (type === 'warning') {
+                    dotElement.style.background = '#FF9800';
+                } else if (type === 'error') {
+                    dotElement.style.background = '#F44336';
+                }
+            }
+
+            showError(message) {
+                const errorHtml = `<div class="error">⚠️ ${message}</div>`;
+                document.getElementById('stats-overview').innerHTML = errorHtml;
+                document.getElementById('critical-content').innerHTML = errorHtml;
+                document.getElementById('module-content').innerHTML = errorHtml;
+                document.getElementById('status-content').innerHTML = errorHtml;
+                document.getElementById('timeline-content').innerHTML = errorHtml;
+            }
+
+            startAutoRefresh() {
+                setInterval(() => {
+                    this.loadMarkdownData();
+                }, this.refreshInterval);
+                
+                this.nextRefreshTime = Date.now() + this.refreshInterval;
+            }
+
+            updateRefreshTimer() {
+                setInterval(() => {
+                    const secondsLeft = Math.max(0, Math.floor((this.nextRefreshTime - Date.now()) / 1000));
+                    document.getElementById('next-refresh').textContent = `${secondsLeft}s`;
+                    
+                    if (secondsLeft === 0) {
+                        this.nextRefreshTime = Date.now() + this.refreshInterval;
+                    }
+                }, 1000);
+            }
+        }
+
+        // Tab navigation
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+
+        function filterTasks(searchTerm, tabName) {
+            const taskItems = document.querySelectorAll(`#${tabName} .task-item, #${tabName} .module-card`);
+            
+            taskItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm.toLowerCase())) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case '1':
+                        e.preventDefault();
+                        showTab('critical');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        showTab('by-module');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        showTab('by-status');
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        showTab('timeline');
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        if (window.dashboard) {
+                            window.dashboard.loadMarkdownData();
+                        }
+                        break;
+                }
+            }
+        });
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.dashboard = new MedProDashboard();
+        });
+    </script>
+</body>
+</html>

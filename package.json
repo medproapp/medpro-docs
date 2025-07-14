@@ -1,0 +1,19 @@
+{
+  "name": "medpro-tasks-dashboard",
+  "version": "1.0.0",
+  "description": "MedPro Tasks Dashboard Server",
+  "main": "serve-dashboard.js",
+  "scripts": {
+    "start": "node serve-dashboard.js",
+    "dashboard": "node serve-dashboard.js",
+    "serve": "node serve-dashboard.js"
+  },
+  "keywords": ["medpro", "dashboard", "tasks", "server"],
+  "author": "MedPro Development Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.53.2",
+    "axios": "^1.10.0",
+    "node-fetch": "^2.7.0"
+  }
+}

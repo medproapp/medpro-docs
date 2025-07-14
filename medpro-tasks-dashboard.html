@@ -1,0 +1,805 @@
+n<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedPro Tasks Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #5d7381 0%, #4a6572 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .critical { color: #dc3545; }
+        .high { color: #fd7e14; }
+        .medium { color: #20c997; }
+        .low { color: #6f42c1; }
+
+        .nav-tabs {
+            display: flex;
+            background: #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab:hover {
+            background: #f8f9fa;
+        }
+
+        .nav-tab.active {
+            background: white;
+            border-bottom-color: #5d7381;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .priority-section {
+            margin-bottom: 40px;
+        }
+
+        .priority-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .priority-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .priority-icon.critical { background: #dc3545; }
+        .priority-icon.high { background: #fd7e14; }
+        .priority-icon.medium { background: #20c997; }
+        .priority-icon.low { background: #6f42c1; }
+
+        .task-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .task-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #e9ecef;
+        }
+
+        .task-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .task-item.critical { border-left-color: #dc3545; }
+        .task-item.high { border-left-color: #fd7e14; }
+        .task-item.medium { border-left-color: #20c997; }
+        .task-item.low { border-left-color: #6f42c1; }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #212529;
+            margin-bottom: 5px;
+        }
+
+        .task-module {
+            background: #f8f9fa;
+            color: #495057;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .task-description {
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .task-file {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-blocked { background: #f8d7da; color: #721c24; }
+        .status-in-progress { background: #d1ecf1; color: #0c5460; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-completed { background: #d4edda; color: #155724; }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #5d7381;
+            box-shadow: 0 0 0 3px rgba(93, 115, 129, 0.1);
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .module-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .module-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .module-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .module-stats {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .module-stat {
+            padding: 5px 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .module-progress {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .module-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #20c997, #28a745);
+            transition: width 0.3s ease;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📋 MedPro Tasks Dashboard</h1>
+            <p class="subtitle">Master Control Center for All Development Activities</p>
+            <p style="margin-top: 10px; opacity: 0.8;">Last Updated: July 14, 2025 | Total Tasks: 88</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-number critical">3</div>
+                <div class="stat-label">Critical Blockers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number high">23</div>
+                <div class="stat-label">High Priority</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number medium">35</div>
+                <div class="stat-label">Medium Priority</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number low">27</div>
+                <div class="stat-label">Low Priority</div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('critical')">🚨 Critical</button>
+            <button class="nav-tab" onclick="showTab('by-module')">📁 By Module</button>
+            <button class="nav-tab" onclick="showTab('by-status')">📊 By Status</button>
+            <button class="nav-tab" onclick="showTab('timeline')">📅 Timeline</button>
+        </div>
+
+        <!-- Critical Blockers Tab -->
+        <div id="critical" class="tab-content active">
+            <input type="text" class="search-box" placeholder="🔍 Search critical tasks..." onkeyup="filterTasks(this.value, 'critical')">
+            
+            <div class="priority-section">
+                <div class="priority-header">
+                    <div class="priority-icon critical"></div>
+                    <h2>🚨 Critical Blockers (Action Required Today)</h2>
+                </div>
+                <div class="task-list" id="critical-tasks">
+                    <div class="task-item" style="border-left-color: #28a745; background: #d4edda;">
+                        <div class="task-header">
+                            <div>
+                                <div class="task-title">✅ Mobile App - Networking Issue (COMPLETED)</div>
+                                <div class="task-module">Mobile App</div>
+                            </div>
+                            <div class="status-badge status-completed">RESOLVED</div>
+                        </div>
+                        <div class="task-description">
+                            WSL2 networking issue resolved! Mobile app testing is now functional and visual testing is possible.
+                        </div>
+                        <div class="task-meta">
+                            <span class="task-file">medproapp/docs/STATUS_DESENVOLVIMENTO.md</span>
+                            <span>✅ Mobile testing unblocked!</span>
+                        </div>
+                    </div>
+
+                    <div class="task-item critical">
+                        <div class="task-header">
+                            <div>
+                                <div class="task-title">Communication System - Patient Search Missing</div>
+                                <div class="task-module">Communication</div>
+                            </div>
+                            <div class="status-badge status-blocked">CRITICAL</div>
+                        </div>
+                        <div class="task-description">
+                            Patient search returns mock data. Missing /api/patients/search endpoint makes communication system non-functional.
+                        </div>
+                        <div class="task-meta">
+                            <span class="task-file">medprofront/communication/IMPLEMENTACAO-PENDENTE.md</span>
+                            <span>Impact: Communication features broken</span>
+                        </div>
+                    </div>
+
+                    <div class="task-item critical">
+                        <div class="task-header">
+                            <div>
+                                <div class="task-title">Encounter Creation - Mobile Testing</div>
+                                <div class="task-module">Mobile App</div>
+                            </div>
+                            <div class="status-badge status-blocked">BLOCKING</div>
+                        </div>
+                        <div class="task-description">
+                            Mobile app can't test encounter features. Missing working test encounters with status="in-progress".
+                        </div>
+                        <div class="task-meta">
+                            <span class="task-file">EXACT_FRONTEND_ENCOUNTER_LOGIC.md</span>
+                            <span>Impact: Can't validate mobile encounter features</span>
+                        </div>
+                    </div>
+
+                    <div class="task-item critical">
+                        <div class="task-header">
+                            <div>
+                                <div class="task-title">Database Schema - Communication Tables</div>
+                                <div class="task-module">Backend</div>
+                            </div>
+                            <div class="status-badge status-pending">UNKNOWN</div>
+                        </div>
+                        <div class="task-description">
+                            Communication tables may not exist in database. Need to verify communication_config, communication_templates, communication_events tables.
+                        </div>
+                        <div class="task-meta">
+                            <span class="task-file">medprofront/communication/IMPLEMENTACAO-PENDENTE.md</span>
+                            <span>Impact: Communication features may fail silently</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- By Module Tab -->
+        <div id="by-module" class="tab-content">
+            <input type="text" class="search-box" placeholder="🔍 Search modules..." onkeyup="filterTasks(this.value, 'by-module')">
+            
+            <div class="module-grid" id="module-grid">
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">📱</div>
+                        <div>
+                            <div class="module-title">Mobile App Development</div>
+                            <div style="color: #666; font-size: 0.9em;">React Native + Expo</div>
+                        </div>
+                    </div>
+                    <div class="module-stats">
+                        <div class="module-stat high">7 High</div>
+                        <div class="module-stat medium">12 Medium</div>
+                        <div class="module-stat completed">1 Completed</div>
+                    </div>
+                    <div class="module-progress">
+                        <div class="module-progress-bar" style="width: 75%"></div>
+                    </div>
+                    <div style="font-size: 0.9em; color: #666;">Status: 75% implemented, networking resolved ✅</div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">💬</div>
+                        <div>
+                            <div class="module-title">Communication System</div>
+                            <div style="color: #666; font-size: 0.9em;">SendGrid + Twilio Integration</div>
+                        </div>
+                    </div>
+                    <div class="module-stats">
+                        <div class="module-stat critical">1 Critical</div>
+                        <div class="module-stat high">3 High</div>
+                        <div class="module-stat medium">4 Medium</div>
+                    </div>
+                    <div class="module-progress">
+                        <div class="module-progress-bar" style="width: 85%"></div>
+                    </div>
+                    <div style="font-size: 0.9em; color: #666;">Status: Backend complete, needs patient search API</div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">👥</div>
+                        <div>
+                            <div class="module-title">Patient Management</div>
+                            <div style="color: #666; font-size: 0.9em;">Registration + Search + Analytics</div>
+                        </div>
+                    </div>
+                    <div class="module-stats">
+                        <div class="module-stat high">4 High</div>
+                        <div class="module-stat medium">8 Medium</div>
+                        <div class="module-stat low">6 Low</div>
+                    </div>
+                    <div class="module-progress">
+                        <div class="module-progress-bar" style="width: 75%"></div>
+                    </div>
+                    <div style="font-size: 0.9em; color: #666;">Status: Core modules complete, advanced features pending</div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🏥</div>
+                        <div>
+                            <div class="module-title">Dashboard</div>
+                            <div style="color: #666; font-size: 0.9em;">Practitioner Analytics</div>
+                        </div>
+                    </div>
+                    <div class="module-stats">
+                        <div class="module-stat high">2 High</div>
+                        <div class="module-stat medium">5 Medium</div>
+                        <div class="module-stat low">3 Low</div>
+                    </div>
+                    <div class="module-progress">
+                        <div class="module-progress-bar" style="width: 80%"></div>
+                    </div>
+                    <div style="font-size: 0.9em; color: #666;">Status: Visual updates complete, needs real data integration</div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🌐</div>
+                        <div>
+                            <div class="module-title">Professional Website</div>
+                            <div style="color: #666; font-size: 0.9em;">Public-facing Marketing</div>
+                        </div>
+                    </div>
+                    <div class="module-stats">
+                        <div class="module-stat medium">3 Medium</div>
+                        <div class="module-stat low">8 Low</div>
+                    </div>
+                    <div class="module-progress">
+                        <div class="module-progress-bar" style="width: 20%"></div>
+                    </div>
+                    <div style="font-size: 0.9em; color: #666;">Status: Planning complete, awaiting development start</div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🔐</div>
+                        <div>
+                            <div class="module-title">Authentication</div>
+                            <div style="color: #666; font-size: 0.9em;">Login + Registration + Security</div>
+                        </div>
+                    </div>
+                    <div class="module-stats">
+                        <div class="module-stat high">2 High</div>
+                        <div class="module-stat medium">3 Medium</div>
+                        <div class="module-stat low">4 Low</div>
+                    </div>
+                    <div class="module-progress">
+                        <div class="module-progress-bar" style="width: 70%"></div>
+                    </div>
+                    <div style="font-size: 0.9em; color: #666;">Status: Core functionality working, UX improvements planned</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- By Status Tab -->
+        <div id="by-status" class="tab-content">
+            <input type="text" class="search-box" placeholder="🔍 Search by status..." onkeyup="filterTasks(this.value, 'by-status')">
+            
+            <div class="priority-section">
+                <div class="priority-header">
+                    <div class="priority-icon critical"></div>
+                    <h2>🔴 Blocked Tasks (3)</h2>
+                </div>
+                <div class="task-list">
+                    <div class="task-item critical">
+                        <div class="task-title">Communication Patient Search, Encounter Creation, Database Schema Validation</div>
+                        <div class="task-description">Critical infrastructure issues preventing further development and testing. (Mobile networking ✅ resolved!)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="priority-section">
+                <div class="priority-header">
+                    <div class="priority-icon high"></div>
+                    <h2>🔄 In Progress (23)</h2>
+                </div>
+                <div class="task-list">
+                    <div class="task-item high">
+                        <div class="task-title">Mobile App Backend Integration, Dashboard Real Data, Communication Testing</div>
+                        <div class="task-description">Active development with dependencies on blocked items.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="priority-section">
+                <div class="priority-header">
+                    <div class="priority-icon medium"></div>
+                    <h2>⏳ Pending (35)</h2>
+                </div>
+                <div class="task-list">
+                    <div class="task-item medium">
+                        <div class="task-title">Professional Website, Authentication Enhancements, Advanced Features</div>
+                        <div class="task-description">Planned features awaiting resource allocation and prioritization.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="priority-section">
+                <div class="priority-header">
+                    <div class="priority-icon low"></div>
+                    <h2>✅ Completed (27)</h2>
+                </div>
+                <div class="task-list">
+                    <div class="task-item low">
+                        <div class="task-title">Mobile App Foundation, Communication Backend, Dashboard Visual Updates</div>
+                        <div class="task-description">Successfully implemented features forming the foundation for future development.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Tab -->
+        <div id="timeline" class="tab-content">
+            <input type="text" class="search-box" placeholder="🔍 Search timeline..." onkeyup="filterTasks(this.value, 'timeline')">
+            
+            <div class="priority-section">
+                <div class="priority-header">
+                    <div class="priority-icon critical"></div>
+                    <h2>🚨 Week 1 (Critical)</h2>
+                </div>
+                <div class="task-list">
+                    <div class="task-item critical">
+                        <div class="task-title">Mobile App Networking Resolution</div>
+                        <div class="task-description">Fix WSL2 issues or move to Windows development environment</div>
+                        <div class="task-meta">
+                            <span>Due: Immediate</span>
+                            <span class="status-badge status-blocked">BLOCKED</span>
+                        </div>
+                    </div>
+                    <div class="task-item critical">
+                        <div class="task-title">Communication Patient Search API</div>
+                        <div class="task-description">Implement missing /api/patients/search endpoint</div>
+                        <div class="task-meta">
+                            <span>Due: 2-3 days</span>
+                            <span class="status-badge status-pending">PENDING</span>
+                        </div>
+                    </div>
+                    <div class="task-item critical">
+                        <div class="task-title">Encounter Creation Logic</div>
+                        <div class="task-description">Create test encounters for mobile app testing</div>
+                        <div class="task-meta">
+                            <span>Due: 3-4 days</span>
+                            <span class="status-badge status-in-progress">IN PROGRESS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="priority-section">
+                <div class="priority-header">
+                    <div class="priority-icon high"></div>
+                    <h2>🟡 Week 2-3 (High Priority)</h2>
+                </div>
+                <div class="task-list">
+                    <div class="task-item high">
+                        <div class="task-title">Mobile App Backend Integration</div>
+                        <div class="task-description">Connect mobile app to real APIs and data sources</div>
+                        <div class="task-meta">
+                            <span>Due: 2 weeks</span>
+                            <span class="status-badge status-pending">PENDING</span>
+                        </div>
+                    </div>
+                    <div class="task-item high">
+                        <div class="task-title">Communication System End-to-End Testing</div>
+                        <div class="task-description">Validate complete workflow after API fixes</div>
+                        <div class="task-meta">
+                            <span>Due: 2 weeks</span>
+                            <span class="status-badge status-pending">PENDING</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="priority-section">
+                <div class="priority-header">
+                    <div class="priority-icon medium"></div>
+                    <h2>🟢 Month 2 (Medium Priority)</h2>
+                </div>
+                <div class="task-list">
+                    <div class="task-item medium">
+                        <div class="task-title">Professional Website Implementation</div>
+                        <div class="task-description">Complete website development with booking and showcase features</div>
+                        <div class="task-meta">
+                            <span>Due: 6-8 weeks</span>
+                            <span class="status-badge status-pending">PENDING</span>
+                        </div>
+                    </div>
+                    <div class="task-item medium">
+                        <div class="task-title">Authentication & Security Enhancements</div>
+                        <div class="task-description">Two-factor auth, social login, improved security</div>
+                        <div class="task-meta">
+                            <span>Due: 6-8 weeks</span>
+                            <span class="status-badge status-pending">PENDING</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="priority-section">
+                <div class="priority-header">
+                    <div class="priority-icon low"></div>
+                    <h2>🔵 Month 3+ (Low Priority)</h2>
+                </div>
+                <div class="task-list">
+                    <div class="task-item low">
+                        <div class="task-title">Advanced AI Features</div>
+                        <div class="task-description">AI assistant integration and advanced analytics</div>
+                        <div class="task-meta">
+                            <span>Due: 12+ weeks</span>
+                            <span class="status-badge status-pending">PENDING</span>
+                        </div>
+                    </div>
+                    <div class="task-item low">
+                        <div class="task-title">Mobile App Store Submission</div>
+                        <div class="task-description">Production deployment to iOS and Android stores</div>
+                        <div class="task-meta">
+                            <span>Due: 16+ weeks</span>
+                            <span class="status-badge status-pending">PENDING</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>MedPro Tasks Dashboard</strong> | Last Updated: July 14, 2025</p>
+            <p>This dashboard tracks all ongoing development activities across the MedPro platform</p>
+            <p>Next Review: July 21, 2025 | Document: MEDPRO_TASKS_CONSOLIDATED.md</p>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+
+        function filterTasks(searchTerm, tabName) {
+            const taskItems = document.querySelectorAll(`#${tabName} .task-item, #${tabName} .module-card`);
+            
+            taskItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm.toLowerCase())) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Auto-refresh every 30 seconds to check for updates
+        setInterval(() => {
+            const lastUpdated = document.querySelector('.header p:last-child');
+            const now = new Date();
+            const timeString = now.toLocaleString();
+            // Note: In a real implementation, you'd fetch updates from a server
+            console.log('Dashboard refreshed at:', timeString);
+        }, 30000);
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case '1':
+                        e.preventDefault();
+                        showTab('critical');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        showTab('by-module');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        showTab('by-status');
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        showTab('timeline');
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

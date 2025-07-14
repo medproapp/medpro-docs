@@ -1,0 +1,158 @@
+Section,Title,Type,Priority,Estimate,Preconditions,Steps,Expected Result,Custom Tags
+"1. Criação de Prescrição","Abrir Modal de Nova Prescrição","Functional","High","2m","- Usuário logado como profissional de saúde
+- Encontro ativo com paciente
+- Banco de dados com medicamentos disponíveis","1. Clicar no botão ""Prescrever""
+2. Verificar abertura do modal","- Modal abre com título ""Nova Prescrição""
+- Formulário limpo e habilitado
+- Accordion ""Passo 1"" visível e expandido
+- Accordion ""Passo 2"" visível mas desabilitado
+- ID mostra ""Não Salvo""
+- Botões: Salvar, Gerar PDF, Redefinir (visíveis), Concluir (desabilitado)","smoke,ui,modal"
+"1. Criação de Prescrição","Selecionar Categoria de Prescrição","Functional","High","3m","- Nova prescrição aberta
+- Modal carregado corretamente","1. Abrir nova prescrição
+2. Selecionar categoria ""Medicamentos""
+3. Verificar mudanças na interface","- Campo ""Tipo de Receituário"" habilitado
+- Aba ""Medicamentos"" ativa na busca
+- Fieldset de busca habilitado","functional,category"
+"1. Criação de Prescrição","Buscar e Adicionar Medicamento","Functional","Critical","5m","- Categoria ""Medicamentos"" selecionada
+- Banco com medicamentos disponíveis","1. Selecionar categoria ""Medicamentos""
+2. Digitar nome do medicamento no campo de busca
+3. Aguardar resultados da busca
+4. Clicar em ""Adicionar"" em um medicamento
+5. Preencher posologia","- Resultados aparecem após digitação
+- Medicamento é adicionado à lista
+- Botão ""Adicionar"" fica desabilitado
+- Campo posologia editável
+- Mensagem ""Nenhum item"" desaparece","critical,search,medication"
+"1. Criação de Prescrição","Remover Medicamento Adicionado","Functional","Medium","2m","- Pelo menos um medicamento adicionado","1. Adicionar um medicamento
+2. Clicar no botão ""X"" do medicamento","- Medicamento removido da lista
+- Botão ""Adicionar"" reabilitado na busca
+- Se lista vazia, mostra ""Nenhum item""","functional,remove"
+"2. Salvamento","Salvar Prescrição como Rascunho","Functional","Critical","3m","- Nova prescrição criada
+- Pelo menos 1 medicamento adicionado","1. Criar nova prescrição
+2. Adicionar pelo menos 1 medicamento
+3. Preencher observações
+4. Clicar ""Salvar""","- Toast de sucesso: ""Rascunho salvo com sucesso!""
+- ID da prescrição aparece no campo
+- Status permanece ""Rascunho""
+- Campo categoria fica desabilitado","critical,save,draft"
+"2. Salvamento","Validação de Campos Obrigatórios","Functional","High","2m","- Modal de nova prescrição aberto","1. Tentar salvar prescrição sem medicamentos
+2. Tentar salvar sem categoria selecionada","- Mensagens de erro apropriadas
+- Salvamento bloqueado
+- Campos obrigatórios destacados","validation,error"
+"3. Geração de PDF","Gerar PDF de Prescrição","Functional","Critical","8m","- Prescrição salva com medicamentos","1. Criar e salvar prescrição com medicamentos
+2. Clicar ""Gerar PDF""
+3. Aguardar processamento","- Loading durante geração
+- PDF aparece na prévia
+- Accordion ""Passo 2"" habilitado e expandido
+- Botão ""Concluir"" habilitado
+- Link ""Ampliar"" visível
+- Toast: ""PDF gerado com sucesso!""","critical,pdf,generation"
+"3. Geração de PDF","Abrir PDF em Nova Aba","Functional","Medium","2m","- PDF da prescrição gerado","1. Gerar PDF da prescrição
+2. Clicar no link ""Ampliar""","- PDF abre em nova aba do navegador
+- Conteúdo do PDF correto e legível","pdf,view"
+"4. Assinatura Digital","Assinar PDF Digitalmente","Functional","High","10m","- PDF gerado
+- Configuração de assinatura digital ativa","1. Gerar PDF da prescrição
+2. Ativar switch de assinatura
+3. Configurar certificado
+4. Assinar documento","- Interface de assinatura aparece
+- PDF é assinado com sucesso
+- PDF assinado aparece na prévia
+- Toast: ""Documento assinado e salvo com sucesso!""","signature,digital,security"
+"4. Assinatura Digital","Erro na Assinatura","Negative","Medium","5m","- PDF gerado
+- Interface de assinatura ativa","1. Tentar assinar com certificado inválido
+2. Cancelar processo de assinatura","- Mensagens de erro apropriadas
+- Processo pode ser cancelado
+- Estado anterior mantido","signature,error,negative"
+"5. Conclusão","Concluir Prescrição Sem Assinatura","Functional","Critical","4m","- PDF gerado (não assinado)","1. Gerar PDF da prescrição
+2. Clicar ""Concluir""
+3. Confirmar no dialog","- Dialog de confirmação aparece
+- Após confirmar: PDF não assinado é salvo
+- Status muda para ""Completo""
+- Formulário fica desabilitado
+- Botão ""Concluir"" vira ""Fechar""
+- Botão ""Redefinir"" fica escondido
+- Toast de conclusão","critical,conclude,unsigned"
+"5. Conclusão","Concluir Prescrição Com Assinatura","Functional","Critical","4m","- PDF gerado e assinado","1. Gerar e assinar PDF
+2. Clicar ""Concluir""
+3. Confirmar no dialog","- PDF assinado é salvo
+- Status muda para ""Completo""
+- Interface fica read-only
+- Botão ""Concluir"" vira ""Fechar""","critical,conclude,signed"
+"5. Conclusão","Cancelar Conclusão","Functional","Medium","2m","- PDF gerado","1. Clicar ""Concluir""
+2. Clicar ""Não"" no dialog","- Dialog fecha
+- Prescrição permanece em draft
+- Interface permanece editável","cancel,dialog"
+"6. Visualização Concluídas","Abrir Prescrição Concluída","Functional","Critical","3m","- Prescrição com status ""Completo"" existente","1. Na lista de prescrições, clicar em uma concluída","- Título: ""Prescrição {ID} - Concluída""
+- Accordion workflow escondido
+- Cards informativos visíveis: Informações, Documento Gerado, Itens Prescritos
+- Todos os campos desabilitados
+- Apenas botão ""Fechar"" visível
+- Alert: ""Prescrição Concluída""","critical,completed,readonly"
+"6. Visualização Concluídas","Download de PDFs","Functional","High","3m","- Prescrição concluída com PDFs salvos","1. Abrir prescrição concluída
+2. Clicar nos botões de download","- Botão verde: ""Documento Assinado"" (se houver)
+- Botão azul: ""Documento"" (não assinado)
+- Downloads funcionam corretamente
+- PDFs abridos são válidos","download,pdf,completed"
+"6. Visualização Concluídas","Fechar Prescrição Concluída","Functional","Medium","1m","- Prescrição concluída aberta","1. Abrir prescrição concluída
+2. Clicar ""Fechar""","- Modal fecha corretamente
+- Lista de prescrições é atualizada
+- Não abre dialog de confirmação","close,completed"
+"7. Edição Draft","Abrir Prescrição Draft Existente","Functional","High","3m","- Prescrição com status ""draft"" existente","1. Clicar em prescrição com status ""draft""","- Título: ""Nova Prescrição""
+- Dados carregados nos campos
+- Medicamentos listados corretamente
+- Interface editável
+- Accordion workflow visível
+- Todos os botões visíveis","draft,edit,load"
+"7. Edição Draft","Editar Prescrição Draft","Functional","High","5m","- Prescrição draft aberta","1. Abrir prescrição draft
+2. Adicionar/remover medicamentos
+3. Alterar observações
+4. Salvar","- Modificações são salvas
+- Toast de confirmação
+- Dados atualizados persistem","edit,draft,modify"
+"8. Reset e Navegação","Redefinir Formulário","Functional","Medium","2m","- Prescrição parcialmente preenchida","1. Preencher prescrição parcialmente
+2. Clicar ""Redefinir""","- Formulário volta ao estado inicial
+- Medicamentos removidos
+- Campos limpos
+- Estado ""nova prescrição""","reset,clear"
+"8. Reset e Navegação","Prescrever Nova (Reset Completo)","Functional","High","3m","- Qualquer prescrição aberta no modal","1. Abrir qualquer prescrição (draft ou concluída)
+2. Clicar ""Prescrever"" novamente","- Modal completamente resetado
+- Interface de nova prescrição
+- Sem dados da prescrição anterior
+- Accordion workflow restaurado","new,reset,navigation"
+"9. Cenários de Erro","Conectividade e Erros de API","Negative","Medium","5m","- Prescrição em edição","1. Simular perda de conexão
+2. Tentar salvar prescrição
+3. Tentar gerar PDF","- Mensagens de erro apropriadas
+- Interface não trava
+- Dados não são perdidos","error,api,connectivity"
+"9. Cenários de Erro","Dados Incompletos","Functional","Medium","3m","- Medicamentos com dados faltantes no banco","1. Carregar prescrição com medicamento sem registro","- Item marcado como ""Incompleto""
+- Styling de warning (amarelo)
+- Mensagem: ""Dados não disponíveis""","incomplete,data,warning"
+"9. Cenários de Erro","Múltiplas Abas/Sessões","Functional","Low","8m","- Mesma prescrição acessível","1. Abrir mesma prescrição em 2 abas
+2. Modificar em uma aba
+3. Verificar comportamento na outra","- Conflitos tratados apropriadamente
+- Dados não corrompidos","concurrent,sessions"
+"10. Fluxos Completos","Fluxo Completo: Nova → Assinatura → Conclusão","E2E","Critical","20m","- Sistema totalmente funcional","1. Criar nova prescrição
+2. Adicionar 3 medicamentos diferentes
+3. Preencher todas as observações
+4. Salvar como rascunho
+5. Gerar PDF
+6. Assinar digitalmente
+7. Concluir prescrição
+8. Fechar modal
+9. Reabrir para visualização","Cada etapa funciona perfeitamente:
+- Criação bem-sucedida
+- Medicamentos adicionados
+- Salvamento confirmado
+- PDF gerado corretamente
+- Assinatura aplicada
+- Conclusão processada
+- Visualização read-only funcional","e2e,complete,signed"
+"10. Fluxos Completos","Fluxo Alternativo: Draft → PDF → Conclusão Sem Assinatura","E2E","High","15m","- Prescrição draft existente","1. Abrir prescrição draft existente
+2. Adicionar medicamento
+3. Gerar PDF
+4. Concluir sem assinar
+5. Verificar salvamento","- PDF não assinado salvo corretamente
+- Status atualizado para ""Completo""
+- Funcionalidade completa sem assinatura
+- Dados persistem corretamente","e2e,unsigned,draft"

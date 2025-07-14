@@ -1,0 +1,504 @@
+{
+  "test_suite": "Atestado (Medical Certificate)",
+  "description": "Test cases para funcionalidade de geração de atestados médicos",
+  "test_cases": [
+    {
+      "id": "AT_001",
+      "title": "Abrir modal de Atestado",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Usuário logado no sistema",
+        "Encontro médico ativo"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Atestar' na seção de documentos",
+          "expected": "Modal 'Atestado' abre com header padronizado"
+        },
+        {
+          "step": 2,
+          "action": "Verificar estrutura do header",
+          "expected": "Header contém: título 'Atestado', badge 'Novo', botões 'Redefinir' e 'X'"
+        },
+        {
+          "step": 3,
+          "action": "Verificar accordion workflow",
+          "expected": "Dois steps visíveis: '1. Configuração do Atestado' e '2. Visualização e Assinatura'"
+        }
+      ]
+    },
+    {
+      "id": "AT_002",
+      "title": "Configurar categoria do atestado",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Modal de Atestado aberto",
+        "Step 1 expandido"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no dropdown 'Categoria'",
+          "expected": "Opções de categoria são exibidas (Repouso, Exercícios Físicos, Viagem, Outro)"
+        },
+        {
+          "step": 2,
+          "action": "Selecionar 'Repouso'",
+          "expected": "Categoria é selecionada e dropdown 'Modelo' é habilitado"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se dropdown 'Situação' está disponível",
+          "expected": "Dropdown 'Situação' com opções de status disponível"
+        }
+      ]
+    },
+    {
+      "id": "AT_003",
+      "title": "Preencher conteúdo do atestado",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Categoria selecionada",
+        "Área de texto visível"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar na área de texto 'Texto contido no Atestado'",
+          "expected": "Cursor aparece na área de texto"
+        },
+        {
+          "step": 2,
+          "action": "Digitar conteúdo do atestado",
+          "expected": "Texto é inserido normalmente com formatação"
+        },
+        {
+          "step": 3,
+          "action": "Verificar contador de caracteres (se existir)",
+          "expected": "Contador atualiza conforme digitação"
+        }
+      ]
+    },
+    {
+      "id": "AT_004",
+      "title": "Usar opções de geração com IA",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Categoria selecionada",
+        "Botão 'Gerar com IA' visível"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Gerar com IA'",
+          "expected": "Processo de geração automática é iniciado"
+        },
+        {
+          "step": 2,
+          "action": "Aguardar geração do conteúdo",
+          "expected": "Texto é gerado automaticamente na área de conteúdo"
+        },
+        {
+          "step": 3,
+          "action": "Verificar qualidade do texto gerado",
+          "expected": "Texto coerente e adequado à categoria selecionada"
+        }
+      ]
+    },
+    {
+      "id": "AT_005",
+      "title": "Configurar opções de inclusão de dados",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Step 1 do accordion expandido"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Ativar switch 'Incluir Dados do Paciente'",
+          "expected": "Switch é ativado e opção é habilitada"
+        },
+        {
+          "step": 2,
+          "action": "Ativar switch 'Incluir Dados deste Encontro'",
+          "expected": "Switch é ativado e dados do encontro serão incluídos"
+        },
+        {
+          "step": 3,
+          "action": "Ativar switch 'Incluir Dados do Prontuário (Histórico)'",
+          "expected": "Switch é ativado e histórico será incluído"
+        }
+      ]
+    },
+    {
+      "id": "AT_006",
+      "title": "Salvar atestado",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Categoria selecionada",
+        "Conteúdo preenchido"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Salvar'",
+          "expected": "Dados são salvos e mensagem de sucesso é exibida"
+        },
+        {
+          "step": 2,
+          "action": "Verificar se badge do header muda para ID gerado",
+          "expected": "Badge mostra ID do atestado (ex: 'ATE-12345')"
+        },
+        {
+          "step": 3,
+          "action": "Verificar status na área de mensagens",
+          "expected": "Status indica 'salvo' com ícone de confirmação"
+        }
+      ]
+    },
+    {
+      "id": "AT_007",
+      "title": "Gerar PDF do atestado",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Atestado salvo com conteúdo"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Gerar PDF'",
+          "expected": "PDF é gerado e Step 2 do accordion expande automaticamente"
+        },
+        {
+          "step": 2,
+          "action": "Verificar prévia do PDF",
+          "expected": "PDF é exibido na área de visualização com conteúdo correto"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se painel de assinatura aparece",
+          "expected": "Opções de assinatura digital são disponibilizadas"
+        }
+      ]
+    },
+    {
+      "id": "AT_008",
+      "title": "Assinar atestado digitalmente",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "PDF gerado",
+        "Painel de assinatura visível",
+        "Certificado digital configurado"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar em 'Assinar com Certificado Digital'",
+          "expected": "Processo de assinatura é iniciado"
+        },
+        {
+          "step": 2,
+          "action": "Selecionar certificado e confirmar assinatura",
+          "expected": "Documento é assinado com sucesso"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se link do atestado assinado aparece",
+          "expected": "Link 'Atestado Assinado' disponível para download"
+        }
+      ]
+    },
+    {
+      "id": "AT_009",
+      "title": "Concluir atestado",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "PDF gerado",
+        "Atestado pode estar assinado ou não"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Concluir'",
+          "expected": "Status do atestado muda para 'completed'"
+        },
+        {
+          "step": 2,
+          "action": "Verificar se atestado aparece no histórico",
+          "expected": "Atestado listado na aba 'Registros Clínicos'"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se modal fecha automaticamente",
+          "expected": "Modal é fechado após conclusão"
+        }
+      ]
+    },
+    {
+      "id": "AT_010",
+      "title": "Salvar modelo de atestado",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Categoria selecionada",
+        "Conteúdo preenchido"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Modelo'",
+          "expected": "Modal de salvar modelo abre"
+        },
+        {
+          "step": 2,
+          "action": "Digitar nome do modelo",
+          "expected": "Campo aceita entrada de texto"
+        },
+        {
+          "step": 3,
+          "action": "Clicar em 'Salvar Modelo'",
+          "expected": "Modelo é salvo e fica disponível no dropdown"
+        }
+      ]
+    },
+    {
+      "id": "AT_011",
+      "title": "Carregar modelo salvo",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Modelo previamente salvo",
+        "Categoria correspondente selecionada"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Selecionar modelo no dropdown 'Modelo'",
+          "expected": "Conteúdo do modelo é carregado no formulário"
+        },
+        {
+          "step": 2,
+          "action": "Verificar se texto é preenchido automaticamente",
+          "expected": "Área de texto contém o conteúdo do modelo"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se configurações são aplicadas",
+          "expected": "Switches e opções do modelo são ativados"
+        }
+      ]
+    },
+    {
+      "id": "AT_012",
+      "title": "Visualizar explicação sobre atestados",
+      "priority": "Low",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Modal de Atestado aberto"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar em 'Explicação sobre Atestados'",
+          "expected": "Seção de explicação expande"
+        },
+        {
+          "step": 2,
+          "action": "Ler informações sobre atestados",
+          "expected": "Conteúdo informativo e relevante é exibido"
+        },
+        {
+          "step": 3,
+          "action": "Fechar seção de explicação",
+          "expected": "Seção colapsa mantendo o formulário intacto"
+        }
+      ]
+    },
+    {
+      "id": "AT_013",
+      "title": "Redefinir formulário de atestado",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Formulário parcialmente preenchido"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Redefinir'",
+          "expected": "Confirmação de redefinição é solicitada"
+        },
+        {
+          "step": 2,
+          "action": "Confirmar redefinição",
+          "expected": "Formulário volta ao estado inicial"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se todos os campos são limpos",
+          "expected": "Dropdowns voltam ao padrão e área de texto é esvaziada"
+        }
+      ]
+    },
+    {
+      "id": "AT_014",
+      "title": "Validar campos obrigatórios",
+      "priority": "High",
+      "type": "Validation",
+      "automated": false,
+      "preconditions": [
+        "Modal de Atestado aberto"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tentar salvar sem selecionar categoria",
+          "expected": "Botão 'Salvar' permanece desabilitado"
+        },
+        {
+          "step": 2,
+          "action": "Tentar gerar PDF sem conteúdo",
+          "expected": "Botão 'Gerar PDF' permanece desabilitado"
+        },
+        {
+          "step": 3,
+          "action": "Verificar mensagens de orientação",
+          "expected": "Mensagens guiam sobre preenchimento obrigatório"
+        }
+      ]
+    },
+    {
+      "id": "AT_015",
+      "title": "Testar navegação entre steps do accordion",
+      "priority": "Medium",
+      "type": "UI",
+      "automated": false,
+      "preconditions": [
+        "Modal de Atestado aberto"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no header do Step 2 sem salvar",
+          "expected": "Step 2 permanece desabilitado ou solicita salvamento"
+        },
+        {
+          "step": 2,
+          "action": "Salvar e tentar acessar Step 2",
+          "expected": "Step 2 fica acessível após salvamento"
+        },
+        {
+          "step": 3,
+          "action": "Navegar entre steps",
+          "expected": "Transição suave entre steps com dados preservados"
+        }
+      ]
+    },
+    {
+      "id": "AT_016",
+      "title": "Testar diferentes categorias de atestado",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Modal de Atestado aberto"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Selecionar categoria 'Exercícios Físicos'",
+          "expected": "Categoria é aplicada e modelos específicos carregam"
+        },
+        {
+          "step": 2,
+          "action": "Selecionar categoria 'Viagem'",
+          "expected": "Modelos de viagem ficam disponíveis"
+        },
+        {
+          "step": 3,
+          "action": "Testar categoria 'Outro'",
+          "expected": "Campo livre para categoria customizada"
+        }
+      ]
+    },
+    {
+      "id": "AT_017",
+      "title": "Verificar histórico de atestados",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Atestados previamente criados",
+        "Acesso à aba de registros clínicos"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Navegar para aba 'Registros Clínicos'",
+          "expected": "Lista de registros clínicos é exibida"
+        },
+        {
+          "step": 2,
+          "action": "Filtrar por tipo 'Atestado'",
+          "expected": "Apenas atestados são listados"
+        },
+        {
+          "step": 3,
+          "action": "Clicar em um atestado para visualizar",
+          "expected": "Modal abre em modo visualização com dados do atestado"
+        }
+      ]
+    },
+    {
+      "id": "AT_018",
+      "title": "Testar edição de atestado existente",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Atestado salvo não concluído",
+        "Acesso ao atestado no histórico"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Abrir atestado existente para edição",
+          "expected": "Modal abre com dados do atestado preenchidos"
+        },
+        {
+          "step": 2,
+          "action": "Modificar conteúdo do atestado",
+          "expected": "Alterações são aceitas no formulário"
+        },
+        {
+          "step": 3,
+          "action": "Salvar modificações",
+          "expected": "Alterações são persistidas no sistema"
+        }
+      ]
+    }
+  ]
+}

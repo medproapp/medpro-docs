@@ -1,0 +1,554 @@
+{
+  "test_suite": "Referral (Encaminhamento)",
+  "description": "Test cases para funcionalidade de encaminhamento médico",
+  "test_cases": [
+    {
+      "id": "RF_001",
+      "title": "Abrir modal de Encaminhamento",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Usuário logado no sistema",
+        "Encontro médico ativo"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Encaminhar' na seção de documentos",
+          "expected": "Modal 'Encaminhamento' abre com header padronizado"
+        },
+        {
+          "step": 2,
+          "action": "Verificar estrutura do header",
+          "expected": "Header contém: título 'Encaminhamento', badge 'Novo', botões 'Redefinir' e 'X'"
+        },
+        {
+          "step": 3,
+          "action": "Verificar accordion workflow",
+          "expected": "Dois steps visíveis: '1. Configuração do Encaminhamento' e '2. Prévia e Assinatura Digital'"
+        }
+      ]
+    },
+    {
+      "id": "RF_002",
+      "title": "Selecionar categoria do encaminhamento",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Modal de Encaminhamento aberto",
+        "Step 1 expandido"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no dropdown 'Categoria'",
+          "expected": "Opções são exibidas: Consulta, Exame, Terapia, Cirurgia, Outros"
+        },
+        {
+          "step": 2,
+          "action": "Selecionar 'Consulta'",
+          "expected": "Categoria é selecionada e dropdown 'Especialidade' é habilitado"
+        },
+        {
+          "step": 3,
+          "action": "Verificar carregamento de especialidades",
+          "expected": "Lista de especialidades relacionadas à categoria é carregada"
+        }
+      ]
+    },
+    {
+      "id": "RF_003",
+      "title": "Selecionar especialidade médica",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Categoria selecionada",
+        "Dropdown 'Especialidade' habilitado"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no dropdown 'Especialidade'",
+          "expected": "Lista de especialidades médicas é exibida"
+        },
+        {
+          "step": 2,
+          "action": "Selecionar uma especialidade (ex: Cardiologia)",
+          "expected": "Especialidade é selecionada e modelos relacionados carregam"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se dropdown 'Modelo' é habilitado",
+          "expected": "Dropdown 'Modelo' fica disponível com modelos da especialidade"
+        }
+      ]
+    },
+    {
+      "id": "RF_004",
+      "title": "Preencher conteúdo do encaminhamento",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Categoria e especialidade selecionadas"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar na área de texto 'Descrição do Encaminhamento'",
+          "expected": "Cursor aparece na área de texto com placeholder informativo"
+        },
+        {
+          "step": 2,
+          "action": "Digitar motivos do encaminhamento",
+          "expected": "Texto é inserido com formatação adequada"
+        },
+        {
+          "step": 3,
+          "action": "Verificar dicas de preenchimento",
+          "expected": "Orientações sobre informações importantes são exibidas"
+        }
+      ]
+    },
+    {
+      "id": "RF_005",
+      "title": "Usar texto automático por especialidade",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Categoria e especialidade selecionadas"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Selecionar especialidade 'Psicologia'",
+          "expected": "Texto padrão para psicologia é inserido automaticamente"
+        },
+        {
+          "step": 2,
+          "action": "Selecionar especialidade 'Fisioterapia'",
+          "expected": "Texto padrão para fisioterapia é inserido automaticamente"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se texto pode ser editado",
+          "expected": "Texto automático pode ser personalizado pelo usuário"
+        }
+      ]
+    },
+    {
+      "id": "RF_006",
+      "title": "Salvar encaminhamento",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Categoria, especialidade e conteúdo preenchidos"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Salvar'",
+          "expected": "Dados são salvos e mensagem de sucesso é exibida"
+        },
+        {
+          "step": 2,
+          "action": "Verificar se badge do header muda para ID gerado",
+          "expected": "Badge mostra ID do encaminhamento (ex: 'ENC-12345')"
+        },
+        {
+          "step": 3,
+          "action": "Verificar mudança de contexto operacional",
+          "expected": "Sistema reconhece encaminhamento como salvo"
+        }
+      ]
+    },
+    {
+      "id": "RF_007",
+      "title": "Gerar PDF do encaminhamento",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Encaminhamento salvo com todos os dados"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Gerar PDF'",
+          "expected": "PDF é gerado e Step 2 do accordion expande automaticamente"
+        },
+        {
+          "step": 2,
+          "action": "Verificar prévia do documento",
+          "expected": "PDF exibido contém cabeçalho médico, dados do paciente e conteúdo"
+        },
+        {
+          "step": 3,
+          "action": "Verificar disponibilidade de assinatura",
+          "expected": "Painel de assinatura digital fica disponível"
+        }
+      ]
+    },
+    {
+      "id": "RF_008",
+      "title": "Assinar encaminhamento digitalmente",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "PDF gerado",
+        "Certificado digital configurado"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar em 'Assinar com Certificado Digital'",
+          "expected": "Interface de assinatura digital é aberta"
+        },
+        {
+          "step": 2,
+          "action": "Selecionar certificado e confirmar assinatura",
+          "expected": "Documento é assinado com sucesso"
+        },
+        {
+          "step": 3,
+          "action": "Verificar link do documento assinado",
+          "expected": "Link 'Encaminhamento Assinado' aparece na seção de documentos"
+        }
+      ]
+    },
+    {
+      "id": "RF_009",
+      "title": "Concluir encaminhamento",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "PDF gerado",
+        "Encaminhamento pode estar assinado ou não"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Concluir'",
+          "expected": "Status muda para 'completed' e processo é finalizado"
+        },
+        {
+          "step": 2,
+          "action": "Verificar registro no histórico",
+          "expected": "Encaminhamento aparece na aba 'Registros Clínicos'"
+        },
+        {
+          "step": 3,
+          "action": "Verificar fechamento automático",
+          "expected": "Modal fecha após conclusão bem-sucedida"
+        }
+      ]
+    },
+    {
+      "id": "RF_010",
+      "title": "Salvar modelo de encaminhamento",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Formulário preenchido com categoria e conteúdo"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Salvar como Modelo'",
+          "expected": "Modal de salvar modelo abre"
+        },
+        {
+          "step": 2,
+          "action": "Inserir nome descritivo para o modelo",
+          "expected": "Campo aceita nome do modelo"
+        },
+        {
+          "step": 3,
+          "action": "Confirmar salvamento do modelo",
+          "expected": "Modelo é salvo e fica disponível na lista"
+        }
+      ]
+    },
+    {
+      "id": "RF_011",
+      "title": "Carregar modelo salvo",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Modelo previamente salvo",
+        "Categoria correspondente selecionada"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Selecionar modelo no dropdown 'Selecionar Modelo'",
+          "expected": "Dados do modelo são carregados no formulário"
+        },
+        {
+          "step": 2,
+          "action": "Verificar preenchimento automático",
+          "expected": "Conteúdo do modelo aparece na área de texto"
+        },
+        {
+          "step": 3,
+          "action": "Verificar se dados podem ser editados",
+          "expected": "Conteúdo carregado pode ser personalizado"
+        }
+      ]
+    },
+    {
+      "id": "RF_012",
+      "title": "Redefinir formulário de encaminhamento",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Formulário parcialmente preenchido"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Clicar no botão 'Redefinir'",
+          "expected": "Confirmação sobre alterações não salvas é exibida"
+        },
+        {
+          "step": 2,
+          "action": "Confirmar redefinição",
+          "expected": "Formulário retorna ao estado inicial"
+        },
+        {
+          "step": 3,
+          "action": "Verificar limpeza completa",
+          "expected": "Todos os campos voltam aos valores padrão"
+        }
+      ]
+    },
+    {
+      "id": "RF_013",
+      "title": "Validar campos obrigatórios",
+      "priority": "High",
+      "type": "Validation",
+      "automated": false,
+      "preconditions": [
+        "Modal de Encaminhamento aberto"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tentar salvar sem selecionar categoria",
+          "expected": "Validação impede salvamento e orienta preenchimento"
+        },
+        {
+          "step": 2,
+          "action": "Tentar salvar sem especialidade",
+          "expected": "Validação solicita seleção de especialidade"
+        },
+        {
+          "step": 3,
+          "action": "Tentar gerar PDF sem conteúdo",
+          "expected": "Botão permanece desabilitado até preenchimento adequado"
+        }
+      ]
+    },
+    {
+      "id": "RF_014",
+      "title": "Testar diferentes categorias de encaminhamento",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Modal de Encaminhamento aberto"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Selecionar categoria 'Exame'",
+          "expected": "Especialidades relacionadas a exames são carregadas"
+        },
+        {
+          "step": 2,
+          "action": "Selecionar categoria 'Cirurgia'",
+          "expected": "Texto padrão para cirurgia é sugerido"
+        },
+        {
+          "step": 3,
+          "action": "Selecionar categoria 'Outros'",
+          "expected": "Texto genérico para especialista é inserido"
+        }
+      ]
+    },
+    {
+      "id": "RF_015",
+      "title": "Verificar carregamento de especialidades por categoria",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Modal de Encaminhamento aberto"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Selecionar categoria 'Consulta'",
+          "expected": "API é chamada e especialidades médicas são carregadas"
+        },
+        {
+          "step": 2,
+          "action": "Verificar tratamento de erro na API",
+          "expected": "Mensagem de erro apropriada em caso de falha"
+        },
+        {
+          "step": 3,
+          "action": "Trocar de categoria e verificar atualização",
+          "expected": "Lista de especialidades é atualizada conforme categoria"
+        }
+      ]
+    },
+    {
+      "id": "RF_016",
+      "title": "Testar fluxo completo de encaminhamento",
+      "priority": "Critical",
+      "type": "End-to-End",
+      "automated": false,
+      "preconditions": [
+        "Sistema configurado com certificado digital",
+        "Paciente e encontro ativos"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Abrir modal e preencher todos os campos obrigatórios",
+          "expected": "Formulário aceita todos os dados corretamente"
+        },
+        {
+          "step": 2,
+          "action": "Salvar, gerar PDF e assinar documento",
+          "expected": "Fluxo completo executado sem erros"
+        },
+        {
+          "step": 3,
+          "action": "Concluir e verificar registro no sistema",
+          "expected": "Encaminhamento registrado e disponível no histórico"
+        }
+      ]
+    },
+    {
+      "id": "RF_017",
+      "title": "Testar navegação entre steps do accordion",
+      "priority": "Medium",
+      "type": "UI",
+      "automated": false,
+      "preconditions": [
+        "Modal de Encaminhamento aberto"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tentar acessar Step 2 sem dados salvos",
+          "expected": "Step 2 permanece desabilitado ou solicita salvamento"
+        },
+        {
+          "step": 2,
+          "action": "Salvar dados e acessar Step 2",
+          "expected": "Step 2 fica acessível após salvamento"
+        },
+        {
+          "step": 3,
+          "action": "Navegar entre steps verificando preservação de dados",
+          "expected": "Dados são mantidos ao alternar entre steps"
+        }
+      ]
+    },
+    {
+      "id": "RF_018",
+      "title": "Testar edição de encaminhamento existente",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Encaminhamento salvo não concluído",
+        "Acesso via histórico de registros"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Abrir encaminhamento existente para edição",
+          "expected": "Modal abre com dados preenchidos do encaminhamento"
+        },
+        {
+          "step": 2,
+          "action": "Modificar categoria e especialidade",
+          "expected": "Alterações são aceitas e especialidades atualizadas"
+        },
+        {
+          "step": 3,
+          "action": "Salvar modificações",
+          "expected": "Alterações são persistidas no sistema"
+        }
+      ]
+    },
+    {
+      "id": "RF_019",
+      "title": "Verificar anexo de encaminhamento assinado",
+      "priority": "High",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Encaminhamento assinado digitalmente"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Verificar se anexo é salvo no sistema",
+          "expected": "Arquivo PDF assinado é armazenado corretamente"
+        },
+        {
+          "step": 2,
+          "action": "Acessar link do documento assinado",
+          "expected": "PDF abre em nova aba com assinatura válida"
+        },
+        {
+          "step": 3,
+          "action": "Verificar metadados do anexo",
+          "expected": "Anexo contém informações corretas do encaminhamento"
+        }
+      ]
+    },
+    {
+      "id": "RF_020",
+      "title": "Testar fechamento com alterações não salvas",
+      "priority": "Medium",
+      "type": "Functional",
+      "automated": false,
+      "preconditions": [
+        "Formulário preenchido mas não salvo"
+      ],
+      "steps": [
+        {
+          "step": 1,
+          "action": "Tentar fechar modal com botão 'X'",
+          "expected": "Confirmação sobre perda de dados é exibida"
+        },
+        {
+          "step": 2,
+          "action": "Cancelar fechamento",
+          "expected": "Modal permanece aberto com dados preservados"
+        },
+        {
+          "step": 3,
+          "action": "Confirmar fechamento",
+          "expected": "Modal fecha e alterações são descartadas"
+        }
+      ]
+    }
+  ]
+}

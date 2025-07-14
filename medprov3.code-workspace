@@ -1,0 +1,37 @@
+{
+	"folders": [
+		{
+			"path": "medproback"
+		},
+		{
+			"path": "medprofront"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "medprofront",
+		"workbench.colorCustomizations": {
+			"activityBar.activeBackground": "#61c7d2",
+			"activityBar.background": "#61c7d2",
+			"activityBar.foreground": "#15202b",
+			"activityBar.inactiveForeground": "#15202b99",
+			"activityBarBadge.background": "#c639b9",
+			"activityBarBadge.foreground": "#e7e7e7",
+			"commandCenter.border": "#15202b99",
+			"sash.hoverBorder": "#61c7d2",
+			"statusBar.background": "#39b9c7",
+			"statusBar.foreground": "#15202b",
+			"statusBarItem.hoverBackground": "#2d94a0",
+			"statusBarItem.remoteBackground": "#39b9c7",
+			"statusBarItem.remoteForeground": "#15202b",
+			"titleBar.activeBackground": "#39b9c7",
+			"titleBar.activeForeground": "#15202b",
+			"titleBar.inactiveBackground": "#39b9c799",
+			"titleBar.inactiveForeground": "#15202b99"
+		},
+		"peacock.color": "#39b9c7",
+	},
+	
+}
