@@ -517,6 +517,9 @@
             }
 
             parseMarkdown(text) {
+                console.log('🔍 [PARSER] Starting parseMarkdown...');
+                console.log('📄 [PARSER] Text length:', text.length);
+                
                 const data = {
                     lastUpdated: null,
                     totalTasks: 0,
@@ -530,16 +533,20 @@
                 // Extract basic info
                 const lastUpdatedMatch = text.match(/\*\*Last Updated:\*\* (.+)/);
                 if (lastUpdatedMatch) data.lastUpdated = lastUpdatedMatch[1];
+                console.log('📅 [PARSER] Last updated:', data.lastUpdated);
 
                 const totalTasksMatch = text.match(/\*\*Total Active Tasks:\*\* (\d+)/);
                 if (totalTasksMatch) data.totalTasks = parseInt(totalTasksMatch[1]);
+                console.log('📊 [PARSER] Total tasks:', data.totalTasks);
 
                 // Extract stats with correct patterns (including dash prefix)
                 const criticalMatch = text.match(/- 🔴 \*\*Critical Blockers:\*\* (\d+) items/);
                 if (criticalMatch) data.stats.critical = parseInt(criticalMatch[1]);
+                console.log('🔴 [PARSER] Critical match:', criticalMatch ? criticalMatch[0] : 'NO MATCH');
 
                 const highMatch = text.match(/- 🟡 \*\*High Priority:\*\* (\d+) items/);
                 if (highMatch) data.stats.high = parseInt(highMatch[1]);
+                console.log('🟡 [PARSER] High priority:', data.stats.high);
 
                 const mediumMatch = text.match(/- 🟢 \*\*Medium Priority:\*\* (\d+) items/);
                 if (mediumMatch) data.stats.medium = parseInt(mediumMatch[1]);
@@ -548,11 +555,16 @@
                 if (lowMatch) data.stats.low = parseInt(lowMatch[1]);
 
                 // Parse critical tasks
+                console.log('🚨 [PARSER] Looking for critical section...');
                 const criticalSection = text.match(/## 🚨 CRITICAL BLOCKERS[\s\S]*?(?=##|---)/);                
+                console.log('🚨 [PARSER] Critical section found:', !!criticalSection);
                 if (criticalSection) {
-                    const taskMatches = criticalSection[0].match(/### \d+\. (.+?)\n[\s\S]*?(?=###|##|---)/g);
+                    console.log('🚨 [PARSER] Critical section content:', criticalSection[0].substring(0, 200) + '...');
+                    const taskMatches = criticalSection[0].match(/### \d+\. (.+?)\n[\s\S]*?(?=### \d+\.|##|---|\n\n##)/g);
+                    console.log('📋 [PARSER] Task matches found:', taskMatches ? taskMatches.length : 0);
                     if (taskMatches) {
-                        taskMatches.forEach(taskMatch => {
+                        taskMatches.forEach((taskMatch, index) => {
+                            console.log(`📝 [PARSER] Processing task ${index + 1}:`, taskMatch.substring(0, 100) + '...');
                             const titleMatch = taskMatch.match(/### \d+\. (.+?)\n/);
                             const statusMatch = taskMatch.match(/\*\*Status:\*\* (.+?)\n/);
                             const fileMatch = taskMatch.match(/\*\*File:\*\* `(.+?)`/);

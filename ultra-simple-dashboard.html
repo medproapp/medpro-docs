@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedPro Summary - Ultra Simple</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #5d7381;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid;
+        }
+
+        .stat-card.critical { border-left-color: #dc3545; }
+        .stat-card.high { border-left-color: #ffc107; }
+        .stat-card.medium { border-left-color: #28a745; }
+        .stat-card.low { border-left-color: #17a2b8; }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #5d7381;
+        }
+
+        .achievement {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .critical-task {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .task-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .task-meta {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-top: 30px;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #5d7381;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .refresh-btn:hover {
+            background: #4a6572;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 MedPro Summary Dashboard</h1>
+        
+        <div id="content">
+            <div class="loading">Loading...</div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
+
+    <script>
+        async function loadData() {
+            try {
+                console.log('Loading MEDPRO_SUMMARY.md...');
+                const response = await fetch('./MEDPRO_SUMMARY.md');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const text = await response.text();
+                console.log('Loaded file, length:', text.length);
+                
+                displayData(parseData(text));
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('content').innerHTML = `
+                    <div class="error">
+                        ❌ Failed to load data: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function parseData(text) {
+            const data = {
+                lastUpdated: '',
+                totalTasks: 0,
+                stats: { critical: 0, high: 0, medium: 0, low: 0 },
+                achievements: [],
+                criticalTasks: []
+            };
+
+            // Parse header info
+            const lastUpdatedMatch = text.match(/\*\*Last Updated:\*\* (.+)/);
+            if (lastUpdatedMatch) data.lastUpdated = lastUpdatedMatch[1];
+
+            const totalTasksMatch = text.match(/\*\*Total Active Tasks:\*\* (\d+)/);
+            if (totalTasksMatch) data.totalTasks = parseInt(totalTasksMatch[1]);
+
+            // Parse stats
+            const criticalMatch = text.match(/- 🔴 \*\*Critical Blockers:\*\* (\d+) items/);
+            if (criticalMatch) data.stats.critical = parseInt(criticalMatch[1]);
+
+            const highMatch = text.match(/- 🟡 \*\*High Priority:\*\* (\d+) items/);
+            if (highMatch) data.stats.high = parseInt(highMatch[1]);
+
+            const mediumMatch = text.match(/- 🟢 \*\*Medium Priority:\*\* (\d+) items/);
+            if (mediumMatch) data.stats.medium = parseInt(mediumMatch[1]);
+
+            const lowMatch = text.match(/- 🔵 \*\*Low Priority:\*\* (\d+) items/);
+            if (lowMatch) data.stats.low = parseInt(lowMatch[1]);
+
+            // Parse achievements - simpler approach
+            console.log('Looking for achievements...');
+            const achievementLines = text.split('\n').filter(line => line.includes('✅') && line.includes('(COMPLETED)'));
+            console.log('Achievement lines found:', achievementLines.length);
+            achievementLines.forEach(line => {
+                const match = line.match(/### \d+\. ✅ (.+?) \(COMPLETED\)/);
+                if (match) {
+                    data.achievements.push({
+                        title: match[1],
+                        achievement: 'Complete end-to-end implementation'
+                    });
+                }
+            });
+
+            // Parse critical tasks - simpler approach
+            console.log('Looking for critical tasks...');
+            const lines = text.split('\n');
+            let inCriticalSection = false;
+            let currentTask = null;
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                
+                if (line.includes('## 🚨 CRITICAL BLOCKERS')) {
+                    inCriticalSection = true;
+                    continue;
+                }
+                
+                if (inCriticalSection && line.startsWith('---')) {
+                    break;
+                }
+                
+                if (inCriticalSection && line.match(/^### \d+\. /)) {
+                    if (currentTask) {
+                        data.criticalTasks.push(currentTask);
+                    }
+                    const titleMatch = line.match(/^### \d+\. (.+)/);
+                    currentTask = {
+                        title: titleMatch ? titleMatch[1] : 'Unknown',
+                        status: '',
+                        file: '',
+                        problem: '',
+                        impact: ''
+                    };
+                } else if (currentTask && line.startsWith('**Status:**')) {
+                    currentTask.status = line.replace('**Status:**', '').trim();
+                } else if (currentTask && line.startsWith('**File:**')) {
+                    currentTask.file = line.replace('**File:**', '').replace(/`/g, '').trim();
+                } else if (currentTask && line.startsWith('**Problem:**')) {
+                    currentTask.problem = line.replace('**Problem:**', '').trim();
+                } else if (currentTask && line.startsWith('**Impact:**')) {
+                    currentTask.impact = line.replace('**Impact:**', '').trim();
+                }
+            }
+            
+            // Add the last task if exists
+            if (currentTask) {
+                data.criticalTasks.push(currentTask);
+            }
+
+            console.log('Parsed data:', data);
+            return data;
+        }
+
+        function displayData(data) {
+            const html = `
+                <div class="stats">
+                    <div class="stat-card critical">
+                        <div class="stat-number">${data.stats.critical}</div>
+                        <div class="stat-label">🔴 Critical Blockers</div>
+                    </div>
+                    <div class="stat-card high">
+                        <div class="stat-number">${data.stats.high}</div>
+                        <div class="stat-label">🟡 High Priority</div>
+                    </div>
+                    <div class="stat-card medium">
+                        <div class="stat-number">${data.stats.medium}</div>
+                        <div class="stat-label">🟢 Medium Priority</div>
+                    </div>
+                    <div class="stat-card low">
+                        <div class="stat-number">${data.stats.low}</div>
+                        <div class="stat-label">🔵 Low Priority</div>
+                    </div>
+                </div>
+
+                ${data.achievements.length > 0 ? `
+                <div class="section">
+                    <h2>🎉 Recent Achievements</h2>
+                    ${data.achievements.map(achievement => `
+                        <div class="achievement">
+                            <div class="task-title">✅ ${achievement.title}</div>
+                            <div class="task-meta">${achievement.achievement}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+
+                ${data.criticalTasks.length > 0 ? `
+                <div class="section">
+                    <h2>🚨 Critical Blockers</h2>
+                    ${data.criticalTasks.map(task => `
+                        <div class="critical-task">
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-meta">
+                                <strong>Status:</strong> ${task.status}<br>
+                                <strong>File:</strong> ${task.file}<br>
+                                <strong>Problem:</strong> ${task.problem}<br>
+                                <strong>Impact:</strong> ${task.impact}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+
+                <div class="last-updated">
+                    Last Updated: ${data.lastUpdated} | Total Active Tasks: ${data.totalTasks}
+                </div>
+            `;
+
+            document.getElementById('content').innerHTML = html;
+        }
+
+        // Load data when page loads
+        window.addEventListener('DOMContentLoaded', loadData);
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>

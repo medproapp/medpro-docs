@@ -31,9 +31,10 @@ function getMimeType(filePath) {
 
 // Serve static files
 function serveFile(res, filePath) {
+    console.log(`[SERVE] Reading file: ${filePath}`);
     fs.readFile(filePath, (err, data) => {
         if (err) {
-            console.error(`Error reading file ${filePath}:`, err.message);
+            console.error(`[SERVE] Error reading file ${filePath}:`, err.message);
             res.writeHead(404, { 'Content-Type': 'text/html' });
             res.end(`
                 <html>
@@ -65,8 +66,10 @@ function serveFile(res, filePath) {
 const server = http.createServer((req, res) => {
     let requestedPath = req.url;
     
-    // Log requests
-    console.log(`${new Date().toISOString()} - ${req.method} ${requestedPath}`);
+    // Log requests with more details
+    console.log(`[${new Date().toISOString()}] ${req.method} ${requestedPath}`);
+    console.log(`[SERVER] User-Agent: ${req.headers['user-agent']}`);
+    console.log(`[SERVER] Headers:`, Object.keys(req.headers));
     
     // Handle root path - serve simple dashboard
     if (requestedPath === '/' || requestedPath === '/index.html') {
@@ -102,9 +105,13 @@ const server = http.createServer((req, res) => {
         return;
     }
     
+    console.log(`[SERVER] Resolved file path: ${filePath}`);
+    console.log(`[SERVER] Checking if file exists...`);
+    
     // Check if file exists
     fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
+            console.log(`[SERVER] File not found: ${filePath}`);
             // File doesn't exist - show available options
             res.writeHead(404, { 'Content-Type': 'text/html' });
             res.end(`
@@ -195,6 +202,7 @@ const server = http.createServer((req, res) => {
             return;
         }
         
+        console.log(`[SERVER] File exists, serving: ${filePath}`);
         // File exists - serve it
         serveFile(res, filePath);
     });
@@ -213,12 +221,40 @@ server.on('error', (err) => {
 });
 
 // Handle graceful shutdown
-process.on('SIGINT', () => {
-    console.log('\n\n🛑 Shutting down MedPro Dashboard server...');
-    server.close(() => {
-        console.log('✅ Server stopped gracefully');
+function gracefulShutdown(signal) {
+    console.log(`\n\n🛑 Received ${signal}. Shutting down MedPro Dashboard server...`);
+    
+    // Stop accepting new connections immediately
+    server.close((err) => {
+        if (err) {
+            console.error('❌ Error during server shutdown:', err);
+        } else {
+            console.log('✅ Server stopped gracefully');
+        }
         process.exit(0);
     });
+    
+    // Force shutdown after 2 seconds if graceful shutdown fails
+    setTimeout(() => {
+        console.log('⚠️  Force shutting down server...');
+        process.exit(0);
+    }, 2000);
+}
+
+// Listen for various shutdown signals
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGQUIT', () => gracefulShutdown('SIGQUIT'));
+
+// Handle uncaught exceptions to prevent hanging
+process.on('uncaughtException', (err) => {
+    console.error('❌ Uncaught Exception:', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+    process.exit(1);
 });
 
 // Start the server

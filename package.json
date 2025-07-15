@@ -8,7 +8,12 @@
     "dashboard": "node serve-dashboard.js",
     "serve": "node serve-dashboard.js"
   },
-  "keywords": ["medpro", "dashboard", "tasks", "server"],
+  "keywords": [
+    "medpro",
+    "dashboard",
+    "tasks",
+    "server"
+  ],
   "author": "MedPro Development Team",
   "license": "MIT",
   "devDependencies": {

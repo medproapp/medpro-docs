@@ -112,7 +112,7 @@ async function createTestInProgressEncounter() {
       Identifier: encounterId,
       Note: null,
       Class: "AMB",
-      Priority: "routine",
+      Priority: "R",
       Length: 3600, // 1 hour in seconds
       Status: "in-progress",
       Subject: TEST_DATA.patient,
@@ -126,6 +126,8 @@ async function createTestInProgressEncounter() {
       encounterData: encounterDataPayload,
       wholeEncInfo: null // Add this as the frontend might send it
     };
+    
+    console.log('📤 Sending encounter data:', JSON.stringify(requestBody, null, 2));
     
     const encounterResponse = await axios.post(
       `${BASE_URL}/encounter/saveencounterinfo`,

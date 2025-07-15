@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedPro Dashboard - Final</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #5d7381 0%, #4a6572 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0 0 10px 0;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-card.critical { border-left-color: #dc3545; }
+        .stat-card.high { border-left-color: #ffc107; }
+        .stat-card.medium { border-left-color: #28a745; }
+        .stat-card.low { border-left-color: #17a2b8; }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #5d7381;
+            font-size: 1.5em;
+        }
+
+        .achievement-card {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+        }
+
+        .critical-card {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .card-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .card-meta {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .card-meta strong {
+            color: #333;
+        }
+
+        .module-section {
+            margin-bottom: 30px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .module-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .module-header:hover {
+            background: #e9ecef;
+        }
+
+        .module-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .module-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+
+        .module-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .module-content.expanded {
+            display: block;
+        }
+
+        .priority-group {
+            margin-bottom: 25px;
+        }
+
+        .priority-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        .priority-critical { background: #f8d7da; color: #721c24; }
+        .priority-high { background: #fff3cd; color: #856404; }
+        .priority-medium { background: #d4edda; color: #155724; }
+        .priority-low { background: #d1ecf1; color: #0c5460; }
+
+        .task-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: box-shadow 0.2s;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .task-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .task-details {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s;
+        }
+
+        .expand-icon.rotated {
+            transform: rotate(90deg);
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #5d7381;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #4a6572;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 MedPro Dashboard</h1>
+            <div class="subtitle">Real-time Project Status</div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="loading">Loading statistics...</div>
+        </div>
+
+        <div class="content" id="content">
+            <div class="loading">Loading dashboard content...</div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="loadDashboard()">🔄 Refresh</button>
+
+    <script>
+        let dashboardData = null;
+
+        async function loadDashboard() {
+            try {
+                console.log('Loading FINAL_CONSOLIDATED.md...');
+                const response = await fetch('./FINAL_CONSOLIDATED.md');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const text = await response.text();
+                console.log('Loaded file, length:', text.length);
+                
+                dashboardData = parseMarkdown(text);
+                console.log('Parsed data:', dashboardData);
+                
+                renderDashboard();
+                
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showError(`Failed to load dashboard: ${error.message}`);
+            }
+        }
+
+        function parseMarkdown(text) {
+            const data = {
+                lastUpdated: '',
+                currentFocus: '',
+                totalTasks: 0,
+                stats: { critical: 0, high: 0, medium: 0, low: 0 },
+                achievements: [],
+                criticalTasks: []
+            };
+
+            const lines = text.split('\n');
+
+            // Parse header info
+            for (const line of lines) {
+                if (line.includes('**Last Updated:**')) {
+                    data.lastUpdated = line.split('**Last Updated:**')[1].trim();
+                }
+                if (line.includes('**Current Focus:**')) {
+                    data.currentFocus = line.split('**Current Focus:**')[1].trim();
+                }
+                if (line.includes('**Total Active Tasks:**')) {
+                    const match = line.match(/\*\*Total Active Tasks:\*\* (\d+)/);
+                    if (match) data.totalTasks = parseInt(match[1]);
+                }
+            }
+
+            // Parse stats
+            for (const line of lines) {
+                if (line.includes('🔴 **Critical Blockers:**')) {
+                    const match = line.match(/🔴 \*\*Critical Blockers:\*\* (\d+) items/);
+                    if (match) data.stats.critical = parseInt(match[1]);
+                }
+                if (line.includes('🟡 **High Priority:**')) {
+                    const match = line.match(/🟡 \*\*High Priority:\*\* (\d+) items/);
+                    if (match) data.stats.high = parseInt(match[1]);
+                }
+                if (line.includes('🟢 **Medium Priority:**')) {
+                    const match = line.match(/🟢 \*\*Medium Priority:\*\* (\d+) items/);
+                    if (match) data.stats.medium = parseInt(match[1]);
+                }
+                if (line.includes('🔵 **Low Priority:**')) {
+                    const match = line.match(/🔵 \*\*Low Priority:\*\* (\d+) items/);
+                    if (match) data.stats.low = parseInt(match[1]);
+                }
+            }
+
+            // Parse achievements
+            let inAchievements = false;
+            let currentAchievement = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                if (line.includes('## 🎉 MAJOR ACHIEVEMENTS')) {
+                    inAchievements = true;
+                    continue;
+                }
+
+                if (inAchievements && line.startsWith('---')) {
+                    if (currentAchievement) {
+                        data.achievements.push(currentAchievement);
+                    }
+                    break;
+                }
+
+                if (inAchievements && line.match(/^### \d+\. ✅/)) {
+                    if (currentAchievement) {
+                        data.achievements.push(currentAchievement);
+                    }
+                    const titleMatch = line.match(/### \d+\. ✅ (.+?) \(COMPLETED\)/);
+                    currentAchievement = {
+                        title: titleMatch ? titleMatch[1] : 'Unknown Achievement',
+                        achievement: ''
+                    };
+                } else if (currentAchievement && line.startsWith('**Achievement:**')) {
+                    currentAchievement.achievement = line.replace('**Achievement:**', '').trim();
+                }
+            }
+
+            // Parse all other sections
+            data.allSections = [];
+            let currentSection = null;
+            let currentTask = null;
+
+            
+            const sectionSourceMap = {
+                'MOBILE APP DEVELOPMENT': 'medpro-mobile-app/README-WSL.md',
+                'COMMUNICATION SYSTEM': 'medprofront/communication/IMPLEMENTACAO-PENDENTE.md', 
+                'PATIENT MANAGEMENT': 'medprofront/patient/GESTAO-PACIENTES-SISTEMA-COMPLETO.md',
+                'PRACTITIONER DASHBOARD': 'medprofront/practitioner/dashboard/FUNCIONAMENTO-DASHBOARD-PRACTITIONER.md',
+                'PROFESSIONAL WEBSITE': 'medprofront/practitioner/website/PLANO_WEBSITE_PROFISSIONAL.md',
+                'BACKEND ENHANCEMENT': 'medproback/docs/BACKEND_ENHANCEMENT_PLAN.md',
+                'ANALYTICS AND REPORTING': 'medprofront/practitioner/dashboard/FUNCIONAMENTO-DASHBOARD-PRACTITIONER.md',
+                'SECURITY AND COMPLIANCE': 'medproback/docs/BACKEND_ENHANCEMENT_PLAN.md',
+                'PERFORMANCE AND INFRASTRUCTURE': 'medprofront/patient/EVOLUCOES-MELHORIAS-GESTAO-PACIENTES.md'
+            };
+
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                // Skip achievements and critical blockers (already parsed)
+                if (line.includes('## 🎉 MAJOR ACHIEVEMENTS') || line.includes('## 🚨 CRITICAL BLOCKERS')) {
+                    continue;
+                }
+
+                // Detect section headers
+                if (line.match(/^## [📱💬👥🏥🌐🔧📊🔒🚀]/)) {
+                    if (currentSection) {
+                        if (currentTask) {
+                            currentSection.tasks.push(currentTask);
+                        }
+                        data.allSections.push(currentSection);
+                    }
+                    const sectionTitle = line.replace(/^## /, '');
+                    const sectionKey = sectionTitle.replace(/[📱💬👥🏥🌐🔧📊🔒🚀]/g, '').trim().toUpperCase();
+                    currentSection = {
+                        title: sectionTitle,
+                        sourceFile: sectionSourceMap[sectionKey] || 'Unknown source',
+                        tasks: []
+                    };
+                    currentTask = null;
+                }
+
+                // Detect task headers
+                if (currentSection && line.match(/^### [🔴🟡🟢🔵]/)) {
+                    if (currentTask) {
+                        currentSection.tasks.push(currentTask);
+                    }
+                    // More flexible regex to handle various formats
+                    const titleMatch = line.match(/^### [🔴🟡🟢🔵]\s*(.+?)$/);
+                    let taskTitle = 'Unknown Task';
+                    if (titleMatch && titleMatch[1]) {
+                        // Clean up the title - remove invalid characters
+                        taskTitle = titleMatch[1].replace(/[�]/g, '').trim();
+                        if (!taskTitle || taskTitle.length === 0) {
+                            taskTitle = 'Task';
+                        }
+                    }
+                    currentTask = {
+                        title: taskTitle,
+                        status: '',
+                        file: '',
+                        problem: '',
+                        impact: ''
+                    };
+                } else if (currentTask) {
+                    if (line.startsWith('**Status:**')) {
+                        currentTask.status = line.replace('**Status:**', '').trim();
+                    } else if (line.startsWith('**File:**')) {
+                        currentTask.file = line.replace('**File:**', '').replace(/`/g, '').trim();
+                    } else if (line.startsWith('**Problem:**')) {
+                        currentTask.problem = line.replace('**Problem:**', '').trim();
+                    } else if (line.startsWith('**Impact:**')) {
+                        currentTask.impact = line.replace('**Impact:**', '').trim();
+                    }
+                }
+            }
+
+            // Add the last section
+            if (currentSection) {
+                if (currentTask) {
+                    currentSection.tasks.push(currentTask);
+                }
+                data.allSections.push(currentSection);
+            }
+
+            // Parse critical tasks
+            let inCritical = false;
+            let currentCriticalTask = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                if (line.includes('## 🚨 CRITICAL BLOCKERS')) {
+                    inCritical = true;
+                    continue;
+                }
+
+                if (inCritical && line.startsWith('---')) {
+                    if (currentCriticalTask) {
+                        data.criticalTasks.push(currentCriticalTask);
+                    }
+                    break;
+                }
+
+                if (inCritical && line.match(/^### \d+\./)) {
+                    if (currentCriticalTask) {
+                        data.criticalTasks.push(currentCriticalTask);
+                    }
+                    const titleMatch = line.match(/### \d+\. (.+)/);
+                    currentCriticalTask = {
+                        title: titleMatch ? titleMatch[1] : 'Unknown Task',
+                        status: '',
+                        file: '',
+                        problem: '',
+                        impact: ''
+                    };
+                } else if (currentCriticalTask) {
+                    if (line.startsWith('**Status:**')) {
+                        currentCriticalTask.status = line.replace('**Status:**', '').trim();
+                    } else if (line.startsWith('**File:**')) {
+                        currentCriticalTask.file = line.replace('**File:**', '').replace(/`/g, '').trim();
+                    } else if (line.startsWith('**Problem:**')) {
+                        currentCriticalTask.problem = line.replace('**Problem:**', '').trim();
+                    } else if (line.startsWith('**Impact:**')) {
+                        currentCriticalTask.impact = line.replace('**Impact:**', '').trim();
+                    }
+                }
+            }
+
+            return data;
+        }
+
+        function renderDashboard() {
+            renderStats();
+            renderContent();
+        }
+
+        function renderStats() {
+            // Show project title and current focus
+            const statsHtml = `
+                <div style="text-align: center; padding: 20px;">
+                    <div style="color: #666; margin-top: 5px;">${dashboardData.totalTasks} active tasks across all development fronts</div>
+                    ${dashboardData.currentFocus ? `<div style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); color: #856404; padding: 30px; margin: 30px auto; border-radius: 16px; max-width: 90%; border: 3px solid #ffc107; font-size: 1.8em; font-weight: bold; box-shadow: 0 8px 25px rgba(255,193,7,0.4); text-transform: uppercase; letter-spacing: 1px;"><div style="font-size: 2.2em; margin-bottom: 10px;">🎯 CURRENT FOCUS</div><div style="font-size: 1.2em; text-transform: none; letter-spacing: normal; font-weight: normal;">${dashboardData.currentFocus}</div></div>` : ''}
+                </div>
+            `;
+            document.getElementById('statsGrid').innerHTML = statsHtml;
+        }
+
+        function renderContent() {
+            let html = '';
+
+            // Open Fronts Overview
+            html += renderOpenFronts();
+            
+            // Current Work Status
+            html += renderWorkStatus();
+            
+            // Detailed Module Breakdown
+            html += renderModuleBreakdown();
+
+            // Last updated
+            html += `
+                <div class="last-updated">
+                    Last Updated: ${dashboardData.lastUpdated}
+                </div>
+            `;
+
+            document.getElementById('content').innerHTML = html;
+        }
+
+        function renderOpenFronts() {
+            const fronts = [
+                {
+                    name: "📱 Mobile App",
+                    status: "🔄 Integration Phase",
+                    critical: getTasksForFront("Mobile App", "🔴"),
+                    active: getTasksForFront("Mobile App", "🟡"),
+                    total: getTasksForFront("Mobile App", "all")
+                },
+                {
+                    name: "💬 Communication System", 
+                    status: "🚨 Blocked - API Missing",
+                    critical: getTasksForFront("Communication System", "🔴"),
+                    active: getTasksForFront("Communication System", "🟡"),
+                    total: getTasksForFront("Communication System", "all")
+                },
+                {
+                    name: "🔧 Backend Enhancement",
+                    status: "🔄 15% Complete - File Migration",
+                    critical: getTasksForFront("Backend Enhancement", "🔴"),
+                    active: getTasksForFront("Backend Enhancement", "🟡"),
+                    total: getTasksForFront("Backend Enhancement", "all")
+                },
+                {
+                    name: "👥 Patient Management",
+                    status: "🟡 Dashboard Integration",
+                    critical: getTasksForFront("Patient Management", "🔴"),
+                    active: getTasksForFront("Patient Management", "🟡"),
+                    total: getTasksForFront("Patient Management", "all")
+                },
+                {
+                    name: "🏥 Practitioner Dashboard",
+                    status: "🟢 Performance Optimization",
+                    critical: getTasksForFront("Practitioner Dashboard", "🔴"),
+                    active: getTasksForFront("Practitioner Dashboard", "🟡"),
+                    total: getTasksForFront("Practitioner Dashboard", "all")
+                }
+            ];
+
+            let html = `
+                <div class="section">
+                    <h2>🎯 Open Development Fronts</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            `;
+
+            fronts.forEach(front => {
+                const alertClass = front.critical > 0 ? 'border-left: 4px solid #dc3545;' : 
+                                 front.active > 0 ? 'border-left: 4px solid #ffc107;' : 
+                                 'border-left: 4px solid #28a745;';
+                
+                html += `
+                    <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; ${alertClass}">
+                        <h3 style="margin: 0 0 10px 0; font-size: 1.1em;">${front.name}</h3>
+                        <div style="color: #666; margin-bottom: 15px; font-size: 0.9em;">${front.status}</div>
+                        <div style="display: flex; gap: 15px; font-size: 0.9em;">
+                            ${front.critical > 0 ? `<span style="color: #dc3545;">🔴 ${front.critical} Critical</span>` : ''}
+                            ${front.active > 0 ? `<span style="color: #ffc107;">🟡 ${front.active} Active</span>` : ''}
+                            <span style="color: #666;">${front.total} Total</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        function renderWorkStatus() {
+            let html = `
+                <div class="section">
+                    <h2>📋 Current Work Status</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            `;
+
+            // Blockers
+            const blockers = dashboardData.criticalTasks || [];
+            html += `
+                <div style="background: #ffe6e6; padding: 20px; border-radius: 8px; border: 1px solid #f5c6cb;">
+                    <h3 style="margin: 0 0 15px 0; color: #721c24;">🚨 Blockers (${blockers.length})</h3>
+                    ${blockers.map(task => `
+                        <div style="background: white; padding: 10px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em;">
+                            <div style="font-weight: bold; margin-bottom: 4px;">${task.title}</div>
+                            <div style="color: #666;">${task.problem}</div>
+                        </div>
+                    `).join('')}
+                    ${blockers.length === 0 ? '<div style="color: #666; font-style: italic;">No blockers 🎉</div>' : ''}
+                </div>
+            `;
+
+            // In Progress
+            const inProgress = getAllTasksByStatus("IN PROGRESS");
+            html += `
+                <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border: 1px solid #ffeaa7;">
+                    <h3 style="margin: 0 0 15px 0; color: #856404;">🔄 In Progress (${inProgress.length})</h3>
+                    ${inProgress.map(task => `
+                        <div style="background: white; padding: 10px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em;">
+                            <div style="font-weight: bold; margin-bottom: 4px;">${task.title}</div>
+                            <div style="color: #666;">${task.section}</div>
+                        </div>
+                    `).join('')}
+                    ${inProgress.length === 0 ? '<div style="color: #666; font-style: italic;">Nothing actively in progress</div>' : ''}
+                </div>
+            `;
+
+            // Ready to Work
+            const readyToWork = getAllTasksByPriority("🟡").filter(t => !t.status.includes("IN PROGRESS")).slice(0, 5);
+            html += `
+                <div style="background: #d4edda; padding: 20px; border-radius: 8px; border: 1px solid #c3e6cb;">
+                    <h3 style="margin: 0 0 15px 0; color: #155724;">✅ Ready to Work (${readyToWork.length})</h3>
+                    ${readyToWork.map(task => `
+                        <div style="background: white; padding: 10px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em;">
+                            <div style="font-weight: bold; margin-bottom: 4px;">${task.title}</div>
+                            <div style="color: #666;">${task.section}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Recent Completions
+            const achievements = dashboardData.achievements || [];
+            html += `
+                <div style="background: #d1ecf1; padding: 20px; border-radius: 8px; border: 1px solid #bee5eb;">
+                    <h3 style="margin: 0 0 15px 0; color: #0c5460;">🎉 Recently Done (${achievements.length})</h3>
+                    ${achievements.map(achievement => `
+                        <div style="background: white; padding: 10px; border-radius: 4px; margin-bottom: 8px; font-size: 0.9em;">
+                            <div style="font-weight: bold; margin-bottom: 4px;">${achievement.title}</div>
+                            <div style="color: #666;">${achievement.achievement}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        function renderModuleBreakdown() {
+            let html = `
+                <div class="section">
+                    <h2>📂 Module Details</h2>
+            `;
+
+            if (dashboardData.allSections && dashboardData.allSections.length > 0) {
+                dashboardData.allSections.forEach((section, index) => {
+                    if (section.tasks.length > 0) {
+                        const taskCounts = {
+                            critical: section.tasks.filter(t => t.status.includes('🔴')).length,
+                            high: section.tasks.filter(t => t.status.includes('🟡')).length,
+                            medium: section.tasks.filter(t => t.status.includes('🟢')).length,
+                            low: section.tasks.filter(t => t.status.includes('🔵')).length
+                        };
+
+                        html += `
+                            <div class="module-section">
+                                <div class="module-header" onclick="toggleModule(${index})">
+                                    <div class="module-title">${section.title}</div>
+                                    <div class="module-stats">
+                                        ${taskCounts.critical > 0 ? `<span style="color: #dc3545;">🔴 ${taskCounts.critical}</span>` : ''}
+                                        ${taskCounts.high > 0 ? `<span style="color: #ffc107;">🟡 ${taskCounts.high}</span>` : ''}
+                                        ${taskCounts.medium > 0 ? `<span style="color: #28a745;">🟢 ${taskCounts.medium}</span>` : ''}
+                                        ${taskCounts.low > 0 ? `<span style="color: #17a2b8;">🔵 ${taskCounts.low}</span>` : ''}
+                                        <span class="expand-icon" id="icon-${index}">▶</span>
+                                    </div>
+                                </div>
+                                <div class="module-content" id="content-${index}">
+                                    <div style="background: #f8f9fa; padding: 10px; margin-bottom: 15px; border-radius: 6px; border-left: 4px solid #6c757d;">
+                                        <strong>📄 Source:</strong> 
+                                        <a href="#" onclick="viewSourceFile('${section.sourceFile}'); return false;" 
+                                           style="background: #e9ecef; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; text-decoration: none; color: #495057; cursor: pointer; font-family: monospace;">
+                                            ${section.sourceFile}
+                                        </a>
+                                    </div>
+                                    ${renderModuleTasks(section.tasks)}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            html += `</div>`;
+            return html;
+        }
+
+        function getTasksForFront(frontName, priority) {
+            if (!dashboardData.allSections) return 0;
+            
+            const relevantSections = dashboardData.allSections.filter(section => 
+                section.title.includes(frontName.split(' ')[1]) || 
+                section.title.toLowerCase().includes(frontName.toLowerCase())
+            );
+            
+            let count = 0;
+            relevantSections.forEach(section => {
+                if (priority === "all") {
+                    count += section.tasks.length;
+                } else {
+                    count += section.tasks.filter(t => t.status.includes(priority)).length;
+                }
+            });
+            
+            return count;
+        }
+
+        function getAllTasksByStatus(status) {
+            if (!dashboardData.allSections) return [];
+            
+            const tasks = [];
+            dashboardData.allSections.forEach(section => {
+                section.tasks.forEach(task => {
+                    if (task.status.includes(status)) {
+                        tasks.push({...task, section: section.title});
+                    }
+                });
+            });
+            
+            return tasks;
+        }
+
+        function getAllTasksByPriority(priority) {
+            if (!dashboardData.allSections) return [];
+            
+            const tasks = [];
+            dashboardData.allSections.forEach(section => {
+                section.tasks.forEach(task => {
+                    if (task.status.includes(priority)) {
+                        tasks.push({...task, section: section.title});
+                    }
+                });
+            });
+            
+            return tasks;
+        }
+
+        function renderModuleTasks(tasks) {
+            const tasksByPriority = {
+                critical: tasks.filter(t => t.status.includes('🔴')),
+                high: tasks.filter(t => t.status.includes('🟡')),
+                medium: tasks.filter(t => t.status.includes('🟢')),
+                low: tasks.filter(t => t.status.includes('🔵'))
+            };
+
+            let html = '';
+
+            if (tasksByPriority.critical.length > 0) {
+                html += `
+                    <div class="priority-group">
+                        <div class="priority-header priority-critical">🔴 Critical (${tasksByPriority.critical.length})</div>
+                        ${tasksByPriority.critical.map(task => `
+                            <div class="task-card">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-details">
+                                    <strong>Issue:</strong> ${task.problem}<br>
+                                    <strong>Impact:</strong> ${task.impact}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            if (tasksByPriority.high.length > 0) {
+                html += `
+                    <div class="priority-group">
+                        <div class="priority-header priority-high">🟡 High Priority (${tasksByPriority.high.length})</div>
+                        ${tasksByPriority.high.map(task => `
+                            <div class="task-card">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-details">
+                                    <strong>Status:</strong> ${task.status}<br>
+                                    <strong>Work:</strong> ${task.problem}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            if (tasksByPriority.medium.length > 0) {
+                html += `
+                    <div class="priority-group">
+                        <div class="priority-header priority-medium">🟢 Medium Priority (${tasksByPriority.medium.length})</div>
+                        ${tasksByPriority.medium.map(task => `
+                            <div class="task-card">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-details">${task.problem}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            if (tasksByPriority.low.length > 0) {
+                html += `
+                    <div class="priority-group">
+                        <div class="priority-header priority-low">🔵 Low Priority (${tasksByPriority.low.length})</div>
+                        ${tasksByPriority.low.map(task => `
+                            <div class="task-card">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-details">${task.problem}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            return html;
+        }
+
+        function toggleModule(index) {
+            const content = document.getElementById(`content-${index}`);
+            const icon = document.getElementById(`icon-${index}`);
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.textContent = '▶';
+            } else {
+                content.classList.add('expanded');
+                icon.textContent = '▼';
+            }
+        }
+
+        function showError(message) {
+            const errorHtml = `<div class="error">❌ ${message}</div>`;
+            document.getElementById('statsGrid').innerHTML = errorHtml;
+            document.getElementById('content').innerHTML = errorHtml;
+        }
+
+        
+        async function viewSourceFile(filePath) {
+            try {
+                // Use copied file if available
+                const copyFileName = globalSourceFileMapping[filePath];
+                const pathToTry = copyFileName || filePath;
+                
+                const response = await fetch(pathToTry);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${filePath}: ${response.statusText}`);
+                }
+                
+                const content = await response.text();
+                
+                // Create modal to display the file content
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                    background: rgba(0,0,0,0.8); z-index: 1000; 
+                    display: flex; align-items: center; justify-content: center;
+                    padding: 20px; box-sizing: border-box;
+                `;
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    background: white; width: 90%; height: 90%; 
+                    border-radius: 8px; display: flex; flex-direction: column;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                `;
+                
+                modalContent.innerHTML = `
+                    <div style="padding: 20px; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border-radius: 8px 8px 0 0;">
+                        <h3 style="margin: 0; color: #333;">📄 ${filePath}</h3>
+                        <button onclick="this.closest('.modal').remove()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">✕ Close</button>
+                    </div>
+                    <div style="flex: 1; overflow: auto; padding: 20px;">
+                        <pre style="white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.5; margin: 0; color: #333;">${content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                    </div>
+                `;
+                
+                modal.className = 'modal';
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+                
+                // Close modal when clicking outside
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+                
+            } catch (error) {
+                alert(`Error loading file: ${error.message}`);
+            }
+        }
+
+        // Global source file mapping for copied files  
+        const globalSourceFileMapping = {
+            "medprofront/communication/IMPLEMENTACAO-PENDENTE.md": "src_medprofront_communication_IMPLEMENTACAO-PENDENTE.md",
+            "medproback/docs/IMPLEMENTATION_PROGRESS.md": "src_medproback_docs_IMPLEMENTATION_PROGRESS.md", 
+            "medproback/docs/PHASE1_PROGRESS.md": "src_medproback_docs_PHASE1_PROGRESS.md",
+            "medprofront/console-log-audit-report.md": "src_medprofront_console-log-audit-report.md",
+            "medprofront/practitioner/dashboard/MELHORIAS_SUGERIDAS_DASHBOARD.md": "src_medprofront_practitioner_dashboard_MELHORIAS_SUGERIDAS_DASHBOARD.md",
+            "medpro-mobile-app/README-WSL.md": "src_medpro-mobile-app_README-WSL.md",
+            "medprofront/practitioner/website/PLANO_WEBSITE_PROFISSIONAL.md": "src_medprofront_practitioner_website_PLANO_WEBSITE_PROFISSIONAL.md",
+            "MEDPRO_TASKS_CONSOLIDATED.md": "MEDPRO_TASKS_CONSOLIDATED.md",
+            "IN_PROGRESS_ENCOUNTERS_STATUS.md": "IN_PROGRESS_ENCOUNTERS_STATUS.md"
+        };
+
+        // Load dashboard on page load
+        window.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+</html>
