@@ -346,3 +346,77 @@ CALL CleanPatientData_HardcodedTables('CONFIRM-DELETE', TRUE);
 - ALL ATTEMPTS FAILED but should NEVER have been tried
 
 **NEVER AGAIN - Always ask permission before touching ANY database!**
+
+---
+
+## 🚨 CRITICAL TECHNICAL SPECIFICATION RULES - NEVER CREATE AMBIGUOUS PLANS!
+
+### 🔥 AMBIGUOUS SPECIFICATIONS CAUSE IMPLEMENTATION DISASTERS
+
+**CRITICAL RULE: Technical specifications must be EXPLICIT and UNAMBIGUOUS**
+
+**❌ WHAT WENT WRONG (2025-01-31):**
+Created a design document for "Prescription Suggestions" that:
+- Used existing function names (`handleSuggestItems`) without clarifying it should be NEW
+- Said "modify handleSuggestItems" when it should have said "create handleSuggestPrescriptions"
+- Failed to explicitly state "DO NOT TOUCH THE EXISTING ITEMS FEATURE"
+- Used the same button ID without clear conflict resolution instructions
+
+**Result:** Sonnet incorrectly:
+- Modified the existing items feature instead of creating a new one
+- Created duplicate function definitions causing JavaScript errors
+- Broke existing functionality by conflating "items" with "prescriptions"
+- Changed all console logs and messages to be prescription-specific
+
+### ✅ RULES FOR CLEAR SPECIFICATIONS
+
+**1. ALWAYS INCLUDE "DO NOT" SECTIONS:**
+```markdown
+## CRITICAL IMPLEMENTATION NOTES
+### DO NOT:
+- Modify existing handleSuggestItems function
+- Change existing items suggestion functionality
+- Reuse showItemSuggestions for prescriptions
+```
+
+**2. USE DISTINCT, UNAMBIGUOUS NAMES:**
+```markdown
+❌ WRONG: "Update handleSuggestItems to support prescriptions"
+✅ RIGHT: "Create NEW handleSuggestPrescriptions function"
+```
+
+**3. EXPLICITLY STATE SEPARATION:**
+```markdown
+## IMPORTANT DISTINCTIONS
+- Items = general suggestions (food, cosmetics) - EXISTING FEATURE
+- Prescriptions = medication prescriptions - NEW SEPARATE FEATURE
+- These must remain completely independent
+```
+
+**4. PROVIDE CLEAR CONFLICT RESOLUTION:**
+```markdown
+## Button Conflict Resolution
+- Button ID `getSuggestedItemsButtonBs` is used by items
+- In AI Clinico: wire to onSuggestPrescriptions (NOT onSuggestItems)
+- Legacy items listener must remain untouched
+```
+
+### 📋 CORRECT SPECIFICATION PATTERN
+
+When creating specifications for features similar to existing ones:
+
+1. **Start with a WARNING section:**
+   ```
+   ⚠️ WARNING: This feature is SEPARATE from existing [feature name]
+   DO NOT modify any existing [feature] code
+   ```
+
+2. **List all NEW functions/files to create**
+
+3. **List all EXISTING functions/files that must NOT be touched**
+
+4. **Provide explicit implementation steps with function names**
+
+5. **Include a "Common Mistakes to Avoid" section**
+
+**This ambiguous specification mistake caused hours of debugging and fixing. NEVER AGAIN!**
