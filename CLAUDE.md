@@ -1,5 +1,13 @@
 # MedPro - Referência Rápida
 
+## CRITICAL PRODUCTION RULES
+
+**NEVER TOUCH PRODUCTION REPOS DIRECTLY!**
+- Never modify files in production repositories
+- Never edit files on production servers
+- All changes must be made locally first
+- Deploy through proper deployment processes only
+
 ## 🔑 ESSENCIAIS
 
 ### Ambientes & Login
